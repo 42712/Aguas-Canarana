@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -130,7 +129,8 @@
         .btn-excel { background: #198754; }
         .btn-pdf { background: #dc3545; }
         .btn-img { background: #6f42c1; }
-        .btn-limpar { background: #6c757d; }
+        .btn-limpar-os { background: #fd7e14; }
+        .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
         
         .filtro {
@@ -319,13 +319,14 @@
             <button class="btn-excel" id="btnExcel">📎 Excel</button>
             <button class="btn-pdf" id="btnPDF">📄 Salvar PDF</button>
             <button class="btn-img" id="btnImg">🖼️ Salvar Imagem</button>
-            <button class="btn-limpar" id="btnLimpar">🗑️ Limpar</button>
+            <button class="btn-limpar-os" id="btnLimparOS">🗑️ Limpar OS</button>
+            <button class="btn-limpar-codigo" id="btnLimparCodigo">🧹 Limpar Código</button>
         </div>
     </div>
 
     <div class="card" id="relatorioCard">
         <div class="filtro">
-            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Equipe...">
+            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Equipe... (ex: VALDECI)">
             <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro...">
         </div>
         
@@ -370,6 +371,15 @@
     atualizarDataHora();
     setInterval(atualizarDataHora, 1000);
 
+    // Função para limpar o nome da equipe (remove "CANARANA - ")
+    function limparNomeEquipe(nome) {
+        if (!nome) return "Não identificada";
+        // Remove "CANARANA - " ou "CANARANA-"
+        let nomeLimpo = nome.replace(/^CANARANA\s*-\s*/i, '');
+        nomeLimpo = nomeLimpo.replace(/^CANARANA-/i, '');
+        return nomeLimpo;
+    }
+
     function gerarRelatorio() {
         const html = document.getElementById("htmlInput").value;
         if (!html.trim()) {
@@ -382,7 +392,7 @@
         let equipe = "Não identificada";
         const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
         if (equipeMatch) {
-            equipe = equipeMatch[1];
+            equipe = limparNomeEquipe(equipeMatch[1]);
         }
         
         const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
@@ -446,12 +456,13 @@
     }
     
     function renderizarTabela() {
-        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase();
-        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase();
+        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase().trim();
+        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase().trim();
         
         const filtrados = dadosRelatorio.filter(item => {
-            return item.equipe.toLowerCase().includes(filtroEquipe) && 
-                   item.logradouro.toLowerCase().includes(filtroLogradouro);
+            const matchEquipe = filtroEquipe === "" || item.equipe.toLowerCase().includes(filtroEquipe);
+            const matchLogradouro = filtroLogradouro === "" || item.logradouro.toLowerCase().includes(filtroLogradouro);
+            return matchEquipe && matchLogradouro;
         });
         
         const tbody = document.getElementById("tabelaBody");
@@ -484,34 +495,30 @@
         document.getElementById("totalRegistros").innerHTML = `📊 Total de OS: ${filtrados.length}`;
     }
     
-    // PDF via impressão nativa - SEM CÓDIGOS HTML
+    // PDF via impressão nativa
     function gerarPDF() {
         if (dadosRelatorio.length === 0) {
             alert("⚠️ Gere o relatório primeiro!");
             return;
         }
         
-        // Esconde os filtros e botões para impressão
         const filtroDiv = document.querySelector('.filtro');
         const botoesCard = document.querySelector('.card:first-of-type');
         
         if (filtroDiv) filtroDiv.style.display = 'none';
         if (botoesCard) botoesCard.style.display = 'none';
         
-        // Mensagem amigável
-        alert("📄 O PDF será gerado usando a impressão do navegador.\n\n1. Clique em 'Salvar como PDF'\n2. Escolha o local para salvar\n\nO relatório ficará igual à imagem que você viu!");
+        alert("📄 O PDF será gerado usando a impressão do navegador.\n\n1. Clique em 'Salvar como PDF'\n2. Escolha o local para salvar");
         
-        // Abre a janela de impressão
         window.print();
         
-        // Restaura os elementos após a impressão
         setTimeout(() => {
             if (filtroDiv) filtroDiv.style.display = '';
             if (botoesCard) botoesCard.style.display = '';
         }, 500);
     }
     
-    // Salvar Imagem - igual ao seu exemplo
+    // Salvar Imagem
     async function gerarImagem() {
         if (dadosRelatorio.length === 0) {
             alert("⚠️ Gere o relatório primeiro!");
@@ -523,7 +530,6 @@
         btnImg.textContent = "⏳ Gerando...";
         btnImg.disabled = true;
         
-        // Esconde os filtros temporariamente
         const filtroDiv = document.querySelector('.filtro');
         const filtroOriginalDisplay = filtroDiv ? filtroDiv.style.display : '';
         if (filtroDiv) filtroDiv.style.display = 'none';
@@ -561,12 +567,13 @@
             return;
         }
         
-        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase();
-        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase();
+        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase().trim();
+        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase().trim();
         
         const filtrados = dadosRelatorio.filter(item => {
-            return item.equipe.toLowerCase().includes(filtroEquipe) && 
-                   item.logradouro.toLowerCase().includes(filtroLogradouro);
+            const matchEquipe = filtroEquipe === "" || item.equipe.toLowerCase().includes(filtroEquipe);
+            const matchLogradouro = filtroLogradouro === "" || item.logradouro.toLowerCase().includes(filtroLogradouro);
+            return matchEquipe && matchLogradouro;
         });
         
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
@@ -588,13 +595,20 @@
         URL.revokeObjectURL(url);
     }
     
-    function limparTabela() {
+    // Limpar apenas as OS (mantém o código)
+    function limparOS() {
         document.getElementById("tabelaBody").innerHTML = "";
-        document.getElementById("htmlInput").value = "";
         dadosRelatorio = [];
         document.getElementById("totalRegistros").innerHTML = "";
         document.getElementById("filtroEquipe").value = "";
         document.getElementById("filtroLogradouro").value = "";
+        alert("✅ OS limpas! O código HTML continua no campo abaixo.");
+    }
+    
+    // Limpar apenas o código (mantém as OS)
+    function limparCodigo() {
+        document.getElementById("htmlInput").value = "";
+        alert("✅ Código limpo! As OS exibidas continuam na tabela.");
     }
     
     function fecharModal() {
@@ -606,7 +620,8 @@
     document.getElementById("btnExcel").addEventListener("click", exportarExcel);
     document.getElementById("btnPDF").addEventListener("click", gerarPDF);
     document.getElementById("btnImg").addEventListener("click", gerarImagem);
-    document.getElementById("btnLimpar").addEventListener("click", limparTabela);
+    document.getElementById("btnLimparOS").addEventListener("click", limparOS);
+    document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
     document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
     document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
     
