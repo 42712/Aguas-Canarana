@@ -1,9 +1,13 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Águas Canarana - Relatório de OS</title>
+    
+    <!-- Biblioteca apenas para imagem -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     
     <style>
         * {
@@ -196,15 +200,22 @@
             border-radius: 8px;
         }
         
-        /* Estilos para impressão */
+        /* Estilos para impressão PDF - PERFEITO */
         @media print {
             body {
                 background: white;
                 padding: 0;
                 margin: 0;
             }
-            .btn-group, .card:first-child, .filtro, button, .instrucao {
-                display: none;
+            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .btn-group {
+                display: none !important;
+            }
+            .header {
+                background: #005c8a !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                margin: 0 !important;
+                border-radius: 0 !important;
             }
             .map-link {
                 text-decoration: none;
@@ -215,10 +226,13 @@
             table {
                 font-size: 10px;
             }
-            .header {
-                background: #005c8a;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            .card {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+            }
+            .total {
+                margin-top: 10px;
             }
         }
         
@@ -262,7 +276,6 @@
             .logo-area img { height: 40px; }
         }
         
-        /* Loading */
         .loading {
             display: inline-block;
             width: 20px;
@@ -304,8 +317,8 @@
         <div class="btn-group">
             <button class="btn-gerar" id="btnGerar">🔍 Gerar Relatório</button>
             <button class="btn-excel" id="btnExcel">📎 Excel</button>
-            <button class="btn-pdf" id="btnPDF">📄 PDF (Ctrl+P)</button>
-            <button class="btn-img" id="btnImg">🖼️ Imagem</button>
+            <button class="btn-pdf" id="btnPDF">📄 Salvar PDF</button>
+            <button class="btn-img" id="btnImg">🖼️ Salvar Imagem</button>
             <button class="btn-limpar" id="btnLimpar">🗑️ Limpar</button>
         </div>
     </div>
@@ -343,7 +356,7 @@
     <div class="modal-content">
         <span class="close" onclick="fecharModal()">&times;</span>
         <img id="modalImage" src="" alt="Relatório">
-        <p><small>Clique com botão direito e "Salvar imagem como..."</small></p>
+        <p><small>🔽 Clique com botão direito e escolha "Salvar imagem como..."</small></p>
     </div>
 </div>
 
@@ -471,61 +484,46 @@
         document.getElementById("totalRegistros").innerHTML = `📊 Total de OS: ${filtrados.length}`;
     }
     
-    // PDF usando a função nativa do navegador (Ctrl+P)
+    // PDF via impressão nativa - SEM CÓDIGOS HTML
     function gerarPDF() {
         if (dadosRelatorio.length === 0) {
             alert("⚠️ Gere o relatório primeiro!");
             return;
         }
         
-        // Salva o estado original dos filtros
+        // Esconde os filtros e botões para impressão
         const filtroDiv = document.querySelector('.filtro');
-        const filtroOriginalDisplay = filtroDiv ? filtroDiv.style.display : '';
+        const botoesCard = document.querySelector('.card:first-of-type');
+        
         if (filtroDiv) filtroDiv.style.display = 'none';
+        if (botoesCard) botoesCard.style.display = 'none';
         
-        // Adiciona classe para impressão
-        document.body.classList.add('printing');
-        
-        // Mensagem para o usuário
-        alert("🔍 O PDF será gerado usando a impressão do navegador.\n\nClique em 'Salvar como PDF' na janela que vai abrir.");
+        // Mensagem amigável
+        alert("📄 O PDF será gerado usando a impressão do navegador.\n\n1. Clique em 'Salvar como PDF'\n2. Escolha o local para salvar\n\nO relatório ficará igual à imagem que você viu!");
         
         // Abre a janela de impressão
         window.print();
         
-        // Restaura os filtros após a impressão
+        // Restaura os elementos após a impressão
         setTimeout(() => {
-            if (filtroDiv) filtroDiv.style.display = filtroOriginalDisplay;
-            document.body.classList.remove('printing');
-        }, 1000);
+            if (filtroDiv) filtroDiv.style.display = '';
+            if (botoesCard) botoesCard.style.display = '';
+        }, 500);
     }
     
+    // Salvar Imagem - igual ao seu exemplo
     async function gerarImagem() {
         if (dadosRelatorio.length === 0) {
             alert("⚠️ Gere o relatório primeiro!");
             return;
         }
         
-        // Verifica se a biblioteca html2canvas está disponível
-        if (typeof html2canvas === 'undefined') {
-            // Carrega dinamicamente
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
-            script.onload = () => {
-                alert("Biblioteca carregada! Clique novamente em Imagem.");
-                gerarImagemExecutar();
-            };
-            document.head.appendChild(script);
-        } else {
-            gerarImagemExecutar();
-        }
-    }
-    
-    async function gerarImagemExecutar() {
         const btnImg = document.getElementById('btnImg');
         const textoOriginal = btnImg.textContent;
         btnImg.textContent = "⏳ Gerando...";
         btnImg.disabled = true;
         
+        // Esconde os filtros temporariamente
         const filtroDiv = document.querySelector('.filtro');
         const filtroOriginalDisplay = filtroDiv ? filtroDiv.style.display : '';
         if (filtroDiv) filtroDiv.style.display = 'none';
@@ -534,10 +532,11 @@
         
         try {
             const canvas = await html2canvas(element, {
-                scale: 2,
+                scale: 2.5,
                 backgroundColor: '#ffffff',
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                windowWidth: element.scrollWidth
             });
             
             const imageData = canvas.toDataURL('image/png');
@@ -548,7 +547,7 @@
             
         } catch (error) {
             console.error('Erro:', error);
-            alert('Erro ao gerar imagem: ' + error.message + '\n\nTente usar o botão PDF ou Excel.');
+            alert('Erro ao gerar imagem: ' + error.message);
         } finally {
             if (filtroDiv) filtroDiv.style.display = filtroOriginalDisplay;
             btnImg.textContent = textoOriginal;
@@ -610,6 +609,7 @@
     document.getElementById("btnLimpar").addEventListener("click", limparTabela);
     document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
     document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
+    
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") fecharModal();
     });
