@@ -25,6 +25,7 @@
             margin: 0 auto;
         }
         
+        /* HEADER - FAIXA AZUL EM CIMA */
         .header {
             background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
             border-radius: 16px;
@@ -133,19 +134,42 @@
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
         
+        /* FILTROS - ESTILO MELHORADO */
         .filtro {
             margin-bottom: 16px;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            flex-direction: row;
+            gap: 12px;
+            flex-wrap: wrap;
         }
         
         .filtro input {
-            padding: 10px;
+            padding: 12px 15px;
             border: 1px solid #ccc;
             border-radius: 8px;
             font-size: 14px;
-            width: 100%;
+            flex: 1;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+        
+        .filtro input:focus {
+            outline: none;
+            border-color: #005c8a;
+            box-shadow: 0 0 0 3px rgba(0,92,138,0.2);
+        }
+        
+        .filtro input::placeholder {
+            color: #999;
+            font-weight: normal;
+        }
+        
+        /* CONTADOR DE FILTRO */
+        .filtro-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+            padding-left: 5px;
         }
         
         .table-wrapper {
@@ -179,6 +203,12 @@
             background: #f8f9fa;
         }
         
+        /* Destaque para linha ao passar o mouse */
+        tr:hover {
+            background: #e8f4f8;
+            cursor: pointer;
+        }
+        
         .map-link {
             background: #0b5ed7;
             color: white;
@@ -188,6 +218,11 @@
             font-size: 11px;
             display: inline-block;
             white-space: nowrap;
+        }
+        
+        .map-link:hover {
+            background: #005c8a;
+            transform: scale(1.02);
         }
         
         .total {
@@ -229,7 +264,7 @@
                 padding: 0;
                 margin: 0;
             }
-            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .btn-group {
+            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .btn-group, .filtro-info {
                 display: none !important;
             }
             .header {
@@ -305,6 +340,7 @@
             .data-hora { font-size: 0.7rem; }
             .logo-area img { height: 40px; }
             .footer { font-size: 10px; }
+            .filtro input { font-size: 12px; padding: 10px; }
         }
         
         .loading {
@@ -324,15 +360,21 @@
             100% { transform: rotate(360deg); }
         }
         
-        .filtro input:focus {
-            outline: none;
-            border-color: #005c8a;
-            box-shadow: 0 0 0 3px rgba(0,92,138,0.2);
+        /* Badge de resultado do filtro */
+        .badge-filtro {
+            display: inline-block;
+            background: #005c8a20;
+            color: #005c8a;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- HEADER - FAIXA AZUL EM CIMA -->
     <div class="header" id="headerPrincipal">
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
@@ -363,8 +405,11 @@
 
     <div class="card" id="relatorioCard">
         <div class="filtro">
-            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Equipe... (ex: VALDECI)" autocomplete="off">
-            <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro... (ex: SÃO)" autocomplete="off">
+            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Equipe... (ex: VALDECI, MARCOS, MURILO)" autocomplete="off">
+            <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro... (ex: SÃO, RIO, TRES)" autocomplete="off">
+        </div>
+        <div class="filtro-info" id="filtroInfo">
+            💡 Digite para filtrar em tempo real - resultado será atualizado automaticamente
         </div>
         
         <div class="table-wrapper">
@@ -417,26 +462,37 @@
         if (!nome) return "Não identificada";
         let nomeLimpo = nome.replace(/^CANARANA\s*-\s*/i, '');
         nomeLimpo = nomeLimpo.replace(/^CANARANA-/i, '');
+        nomeLimpo = nomeLimpo.replace(/^OP-/i, 'OP-');
         return nomeLimpo;
     }
 
     function gerarRelatorio() {
         const html = document.getElementById("htmlInput").value;
         if (!html.trim()) {
-            alert("Cole o HTML do F12 primeiro!");
+            alert("⚠️ Cole o HTML do F12 primeiro!");
             return;
         }
 
         dadosRelatorio = [];
         
+        // Captura a equipe selecionada
         let equipe = "Não identificada";
         const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
         if (equipeMatch) {
             equipe = limparNomeEquipe(equipeMatch[1]);
         }
         
+        // Se não achou, tenta outro padrão
+        if (equipe === "Não identificada") {
+            const equipeMatch2 = html.match(/CANARANA\s*-\s*(OP-[A-Z]+[^<]*)/i);
+            if (equipeMatch2) {
+                equipe = limparNomeEquipe(equipeMatch2[1]);
+            }
+        }
+        
         const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
         let match;
+        let count = 0;
         
         while ((match = linhaRegex.exec(html)) !== null) {
             const linhaHtml = match[1];
@@ -462,6 +518,7 @@
             const bairro = celulas[20] || "";
             let cidade = celulas[21] || "Canarana";
             
+            // Cidade como CANARANA-MT
             if (cidade && cidade !== "Canarana") {
                 cidade = cidade.toUpperCase().replace(/-MT$/i, '') + "-MT";
             } else if (cidade === "Canarana") {
@@ -482,13 +539,14 @@
                     bairro: bairro,
                     cidade: cidade
                 });
+                count++;
             }
         }
         
         if (dadosRelatorio.length === 0) {
-            alert("Nenhuma OS encontrada. Verifique o HTML copiado.");
+            alert("❌ Nenhuma OS encontrada. Verifique se o HTML copiado contém as linhas da tabela.");
         } else {
-            alert(`${dadosRelatorio.length} OS(es) encontrada(s)!`);
+            alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
         }
         
         renderizarTabela();
@@ -531,7 +589,22 @@
             cellMap.appendChild(link);
         }
         
-        document.getElementById("totalRegistros").innerHTML = `📊 Total de OS: ${filtrados.length}`;
+        const totalFiltrados = filtrados.length;
+        const totalGeral = dadosRelatorio.length;
+        
+        let mensagem = `📊 Total de OS: ${totalFiltrados}`;
+        if (totalFiltrados !== totalGeral) {
+            mensagem += ` (filtrado de ${totalGeral} total)`;
+        }
+        document.getElementById("totalRegistros").innerHTML = mensagem;
+        
+        // Atualiza info do filtro
+        const infoDiv = document.getElementById("filtroInfo");
+        if (filtroEquipe || filtroLogradouro) {
+            infoDiv.innerHTML = `🎯 Filtro ativo: ${totalFiltrados} OS(s) exibida(s) de ${totalGeral} total`;
+        } else {
+            infoDiv.innerHTML = `💡 Digite para filtrar em tempo real - ${totalGeral} OS(s) no total`;
+        }
     }
     
     function gerarPDF() {
@@ -541,9 +614,11 @@
         }
         
         const filtroDiv = document.querySelector('.filtro');
+        const filtroInfoDiv = document.querySelector('.filtro-info');
         const botoesCard = document.querySelector('.card:first-of-type');
         
         if (filtroDiv) filtroDiv.style.display = 'none';
+        if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
         if (botoesCard) botoesCard.style.display = 'none';
         
         alert("📄 O PDF será gerado usando a impressão do navegador.\n\n1. Clique em 'Salvar como PDF'\n2. Escolha o local para salvar");
@@ -552,6 +627,7 @@
         
         setTimeout(() => {
             if (filtroDiv) filtroDiv.style.display = '';
+            if (filtroInfoDiv) filtroInfoDiv.style.display = '';
             if (botoesCard) botoesCard.style.display = '';
         }, 500);
     }
@@ -570,8 +646,11 @@
         
         // Esconde os filtros temporariamente
         const filtroDiv = document.querySelector('.filtro');
+        const filtroInfoDiv = document.querySelector('.filtro-info');
         const filtroOriginalDisplay = filtroDiv ? filtroDiv.style.display : '';
+        const filtroInfoOriginalDisplay = filtroInfoDiv ? filtroInfoDiv.style.display : '';
         if (filtroDiv) filtroDiv.style.display = 'none';
+        if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
         
         // Cria um container TEMPORÁRIO que vai conter o HEADER + TABELA + RODAPÉ
         const tempContainer = document.createElement('div');
@@ -645,6 +724,7 @@
         } finally {
             document.body.removeChild(tempContainer);
             if (filtroDiv) filtroDiv.style.display = filtroOriginalDisplay;
+            if (filtroInfoDiv) filtroInfoDiv.style.display = filtroInfoOriginalDisplay;
             btnImg.textContent = textoOriginal;
             btnImg.disabled = false;
         }
@@ -690,6 +770,7 @@
         document.getElementById("totalRegistros").innerHTML = "";
         document.getElementById("filtroEquipe").value = "";
         document.getElementById("filtroLogradouro").value = "";
+        document.getElementById("filtroInfo").innerHTML = "💡 Digite para filtrar em tempo real - aguardando dados";
         alert("✅ OS limpas! O código HTML continua no campo abaixo.");
     }
     
@@ -710,6 +791,7 @@
     document.getElementById("btnLimparOS").addEventListener("click", limparOS);
     document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
     
+    // FILTROS EM TEMPO REAL - FUNCIONAM INSTANTANEAMENTE
     document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
     document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
     
