@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Águas Canarana - Relatório de OS</title>
     
-    <!-- Bibliotecas CDN confiáveis -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    
     <style>
         * {
             box-sizing: border-box;
@@ -200,6 +196,32 @@
             border-radius: 8px;
         }
         
+        /* Estilos para impressão */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .btn-group, .card:first-child, .filtro, button, .instrucao {
+                display: none;
+            }
+            .map-link {
+                text-decoration: none;
+                color: black;
+                background: none;
+                padding: 0;
+            }
+            table {
+                font-size: 10px;
+            }
+            .header {
+                background: #005c8a;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -239,6 +261,24 @@
             .data-hora { font-size: 0.7rem; }
             .logo-area img { height: 40px; }
         }
+        
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -247,7 +287,7 @@
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
                  alt="Águas Canarana" 
-                 onerror="this.src='https://via.placeholder.com/144x72?text=Águas+Canarana'">
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22144%22 height=%2272%22%3E%3Crect width=%22144%22 height=%2272%22 fill=%22%23005c8a%22/%3E%3Ctext x=%2210%22 y=%2240%22 fill=%22white%22 font-size=%2214%22%3EÁguas Canarana%3C/text%3E%3C/svg%3E'">
             <span class="empresa-nome">Águas Canarana</span>
         </div>
         <div class="titulo-relatorio">📋 RELATÓRIO DE OS</div>
@@ -262,11 +302,11 @@
         <textarea id="htmlInput" placeholder="Cole aqui o HTML copiado do F12 (Elements)..."></textarea>
         
         <div class="btn-group">
-            <button class="btn-gerar" onclick="gerarRelatorio()">🔍 Gerar Relatório</button>
-            <button class="btn-excel" onclick="exportarExcel()">📎 Excel</button>
-            <button class="btn-pdf" onclick="gerarPDF()">📄 PDF</button>
-            <button class="btn-img" onclick="gerarImagem()">🖼️ Imagem</button>
-            <button class="btn-limpar" onclick="limparTabela()">🗑️ Limpar</button>
+            <button class="btn-gerar" id="btnGerar">🔍 Gerar Relatório</button>
+            <button class="btn-excel" id="btnExcel">📎 Excel</button>
+            <button class="btn-pdf" id="btnPDF">📄 PDF (Ctrl+P)</button>
+            <button class="btn-img" id="btnImg">🖼️ Imagem</button>
+            <button class="btn-limpar" id="btnLimpar">🗑️ Limpar</button>
         </div>
     </div>
 
@@ -359,13 +399,13 @@
             const bairro = celulas[20] || "";
             let cidade = celulas[21] || "Canarana";
             
-            // CORREÇÃO: Adiciona -MT à cidade
+            // cidade como CANARANA-MT
             if (cidade && cidade !== "Canarana") {
-                cidade = cidade + "-MT";
+                cidade = cidade.toUpperCase().replace(/-MT$/i, '') + "-MT";
             } else if (cidade === "Canarana") {
                 cidade = "CANARANA-MT";
             } else if (cidade && !cidade.includes("-MT")) {
-                cidade = cidade + "-MT";
+                cidade = cidade.toUpperCase() + "-MT";
             }
             
             if (solicitacao || logradouro) {
@@ -411,7 +451,7 @@
             const row = tbody.insertRow();
             row.insertCell(0).textContent = item.equipe;
             row.insertCell(1).textContent = item.solicitacao;
-            row.insertCell(2).textContent = item.descricao.substring(0, 60) + (item.descricao.length > 60 ? "..." : "");
+            row.insertCell(2).textContent = item.descricao;
             row.insertCell(3).textContent = item.dataAbertura;
             row.insertCell(4).textContent = item.dataPrazo;
             row.insertCell(5).textContent = item.logradouro;
@@ -431,127 +471,94 @@
         document.getElementById("totalRegistros").innerHTML = `📊 Total de OS: ${filtrados.length}`;
     }
     
+    // PDF usando a função nativa do navegador (Ctrl+P)
     function gerarPDF() {
         if (dadosRelatorio.length === 0) {
-            alert("Gere o relatório primeiro!");
+            alert("⚠️ Gere o relatório primeiro!");
             return;
         }
         
-        const btnPDF = event.target;
-        const textoOriginal = btnPDF.textContent;
-        btnPDF.textContent = "⏳ Gerando PDF...";
-        btnPDF.disabled = true;
-        
-        // Pega o elemento que contém a tabela e o header
-        const element = document.getElementById("relatorioCard");
-        
         // Salva o estado original dos filtros
-        const filtroEquipe = document.getElementById("filtroEquipe");
-        const filtroLogradouro = document.getElementById("filtroLogradouro");
-        const filtroOriginal1 = filtroEquipe.style.display;
-        const filtroOriginal2 = filtroLogradouro.style.display;
+        const filtroDiv = document.querySelector('.filtro');
+        const filtroOriginalDisplay = filtroDiv ? filtroDiv.style.display : '';
+        if (filtroDiv) filtroDiv.style.display = 'none';
         
-        // Esconde os filtros temporariamente
-        filtroEquipe.style.display = 'none';
-        filtroLogradouro.style.display = 'none';
+        // Adiciona classe para impressão
+        document.body.classList.add('printing');
         
-        // Clona o elemento para não afetar a tela
-        const cloneElement = element.cloneNode(true);
-        cloneElement.style.padding = '10px';
-        cloneElement.style.margin = '0';
-        cloneElement.style.backgroundColor = 'white';
+        // Mensagem para o usuário
+        alert("🔍 O PDF será gerado usando a impressão do navegador.\n\nClique em 'Salvar como PDF' na janela que vai abrir.");
         
-        // Remove qualquer input de filtro do clone
-        const cloneFiltros = cloneElement.querySelectorAll('.filtro');
-        cloneFiltros.forEach(f => f.style.display = 'none');
+        // Abre a janela de impressão
+        window.print();
         
-        // Cria um container temporário
-        const tempContainer = document.createElement('div');
-        tempContainer.appendChild(cloneElement);
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.top = '-9999px';
-        tempContainer.style.left = '-9999px';
-        document.body.appendChild(tempContainer);
-        
-        // Configuração do PDF - SEM MARGENS
-        const opt = {
-            margin: [0, 0, 0, 0],
-            filename: `aguas_canarana_os_${new Date().toISOString().slice(0,19).replace(/:/g, "-")}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-        };
-        
-        html2pdf().set(opt).from(tempContainer).save().then(() => {
-            document.body.removeChild(tempContainer);
-            // Restaura os filtros
-            filtroEquipe.style.display = filtroOriginal1;
-            filtroLogradouro.style.display = filtroOriginal2;
-            btnPDF.textContent = textoOriginal;
-            btnPDF.disabled = false;
-        }).catch(error => {
-            console.error("Erro no PDF:", error);
-            document.body.removeChild(tempContainer);
-            filtroEquipe.style.display = filtroOriginal1;
-            filtroLogradouro.style.display = filtroOriginal2;
-            btnPDF.textContent = textoOriginal;
-            btnPDF.disabled = false;
-            alert("Erro ao gerar PDF. Tente novamente.");
-        });
+        // Restaura os filtros após a impressão
+        setTimeout(() => {
+            if (filtroDiv) filtroDiv.style.display = filtroOriginalDisplay;
+            document.body.classList.remove('printing');
+        }, 1000);
     }
     
     async function gerarImagem() {
         if (dadosRelatorio.length === 0) {
-            alert("Gere o relatório primeiro!");
+            alert("⚠️ Gere o relatório primeiro!");
             return;
         }
         
-        const btnImg = event.target;
+        // Verifica se a biblioteca html2canvas está disponível
+        if (typeof html2canvas === 'undefined') {
+            // Carrega dinamicamente
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+            script.onload = () => {
+                alert("Biblioteca carregada! Clique novamente em Imagem.");
+                gerarImagemExecutar();
+            };
+            document.head.appendChild(script);
+        } else {
+            gerarImagemExecutar();
+        }
+    }
+    
+    async function gerarImagemExecutar() {
+        const btnImg = document.getElementById('btnImg');
         const textoOriginal = btnImg.textContent;
-        btnImg.textContent = "⏳ Gerando Imagem...";
+        btnImg.textContent = "⏳ Gerando...";
         btnImg.disabled = true;
         
-        const element = document.getElementById("relatorioCard");
+        const filtroDiv = document.querySelector('.filtro');
+        const filtroOriginalDisplay = filtroDiv ? filtroDiv.style.display : '';
+        if (filtroDiv) filtroDiv.style.display = 'none';
         
-        const filtroEquipe = document.getElementById("filtroEquipe");
-        const filtroLogradouro = document.getElementById("filtroLogradouro");
-        const filtroOriginal1 = filtroEquipe.style.display;
-        const filtroOriginal2 = filtroLogradouro.style.display;
-        
-        filtroEquipe.style.display = 'none';
-        filtroLogradouro.style.display = 'none';
+        const element = document.getElementById('relatorioCard');
         
         try {
             const canvas = await html2canvas(element, {
-                scale: 2.5,
+                scale: 2,
                 backgroundColor: '#ffffff',
                 logging: false,
                 useCORS: true
             });
             
-            const imageData = canvas.toDataURL("image/png");
-            const modal = document.getElementById("imageModal");
-            const modalImg = document.getElementById("modalImage");
+            const imageData = canvas.toDataURL('image/png');
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
             modalImg.src = imageData;
-            modal.style.display = "block";
+            modal.style.display = 'block';
             
         } catch (error) {
-            alert("Erro ao gerar imagem: " + error);
+            console.error('Erro:', error);
+            alert('Erro ao gerar imagem: ' + error.message + '\n\nTente usar o botão PDF ou Excel.');
         } finally {
-            filtroEquipe.style.display = filtroOriginal1;
-            filtroLogradouro.style.display = filtroOriginal2;
+            if (filtroDiv) filtroDiv.style.display = filtroOriginalDisplay;
             btnImg.textContent = textoOriginal;
             btnImg.disabled = false;
         }
     }
     
-    function fecharModal() {
-        document.getElementById("imageModal").style.display = "none";
-    }
-    
     function exportarExcel() {
         if (dadosRelatorio.length === 0) {
-            alert("Gere o relatório primeiro!");
+            alert("⚠️ Gere o relatório primeiro!");
             return;
         }
         
@@ -591,9 +598,18 @@
         document.getElementById("filtroLogradouro").value = "";
     }
     
+    function fecharModal() {
+        document.getElementById("imageModal").style.display = "none";
+    }
+    
+    // Event Listeners
+    document.getElementById("btnGerar").addEventListener("click", gerarRelatorio);
+    document.getElementById("btnExcel").addEventListener("click", exportarExcel);
+    document.getElementById("btnPDF").addEventListener("click", gerarPDF);
+    document.getElementById("btnImg").addEventListener("click", gerarImagem);
+    document.getElementById("btnLimpar").addEventListener("click", limparTabela);
     document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
     document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
-    
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") fecharModal();
     });
