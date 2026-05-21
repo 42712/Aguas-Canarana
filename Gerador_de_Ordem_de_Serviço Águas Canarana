@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Águas Canarana - Relatório de OS</title>
+    
+    <!-- Bibliotecas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #e9ecef;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .logo-area img {
+            height: 55px;
+            width: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 5px 12px;
+        }
+        
+        .empresa-nome {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .titulo-relatorio {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .data-hora {
+            color: white;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        
+        .instrucao {
+            background: #e7f1ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #005c8a;
+            border-left: 4px solid #005c8a;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        button {
+            background: #0b5ed7;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 90px;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        
+        .btn-excel { background: #198754; }
+        .btn-pdf { background: #dc3545; }
+        .btn-img { background: #6f42c1; }
+        .btn-limpar { background: #6c757d; }
+        .btn-gerar { background: #005c8a; }
+        
+        .filtro {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .filtro input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 600px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background: #005c8a;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .map-link {
+            background: #0b5ed7;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-size: 11px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .total {
+            font-weight: bold;
+            margin-top: 16px;
+            font-size: 14px;
+            text-align: center;
+            padding: 8px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+        
+        /* Estilos específicos para PDF - SEM MARGENS */
+        .pdf-container {
+            background: white;
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .pdf-container .header {
+            margin: 0;
+            border-radius: 0;
+        }
+        
+        .pdf-container table {
+            font-size: 10px;
+        }
+        
+        .pdf-container th, 
+        .pdf-container td {
+            padding: 6px 4px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow: auto;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            margin: auto;
+            padding: 16px;
+            border-radius: 12px;
+            max-width: 95%;
+            text-align: center;
+        }
+        .modal img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        @media (max-width: 600px) {
+            .empresa-nome { font-size: 1rem; }
+            .titulo-relatorio { font-size: 0.9rem; }
+            .data-hora { font-size: 0.7rem; }
+            .logo-area img { height: 40px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- HEADER COM LOGO E DATA/HORA -->
+    <div class="header" id="headerPrincipal">
+        <div class="logo-area">
+            <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
+                 alt="Águas Canarana" 
+                 onerror="this.src='https://via.placeholder.com/144x72?text=Águas+Canarana'">
+            <span class="empresa-nome">Águas Canarana</span>
+        </div>
+        <div class="titulo-relatorio">📋 RELATÓRIO DE OS</div>
+        <div class="data-hora" id="dataHoraAtual"></div>
+    </div>
+
+    <div class="card">
+        <div class="instrucao">
+            💡 <strong>Instrução:</strong> Cole aqui o código HTML copiado do sistema 
+            <strong>https://centrosul.waterfy.net/</strong> (Elements) da tela de OS do sistema Waterfy.
+        </div>
+        <textarea id="htmlInput" placeholder="Cole aqui o HTML copiado do F12 (Elements)..."></textarea>
+        
+        <div class="btn-group">
+            <button class="btn-gerar" onclick="gerarRelatorio()">🔍 Gerar Relatório</button>
+            <button class="btn-excel" onclick="exportarExcel()">📎 Excel</button>
+            <button class="btn-pdf" onclick="gerarPDF()">📄 PDF</button>
+            <button class="btn-img" onclick="gerarImagem()">🖼️ Imagem</button>
+            <button class="btn-limpar" onclick="limparTabela()">🗑️ Limpar</button>
+        </div>
+    </div>
+
+    <div class="card" id="relatorioCard">
+        <div class="filtro">
+            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Equipe...">
+            <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro...">
+        </div>
+        
+        <div class="table-wrapper" id="tabelaWrapper">
+            <table id="tabelaRelatorio">
+                <thead>
+                    <tr>
+                        <th>Equipe</th>
+                        <th>Solicitação</th>
+                        <th>Descrição</th>
+                        <th>Data Abertura</th>
+                        <th>Data Prazo</th>
+                        <th>Logradouro</th>
+                        <th>Nº</th>
+                        <th>Bairro</th>
+                        <th>Cidade</th>
+                        <th>Mapa</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaBody"></tbody>
+            </table>
+        </div>
+        <div id="totalRegistros" class="total"></div>
+    </div>
+</div>
+
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModal()">&times;</span>
+        <img id="modalImage" src="" alt="Relatório">
+        <p><small>Clique com botão direito e "Salvar imagem como..."</small></p>
+    </div>
+</div>
+
+<script>
+    let dadosRelatorio = [];
+    
+    // Atualiza data e hora automaticamente
+    function atualizarDataHora() {
+        const agora = new Date();
+        document.getElementById("dataHoraAtual").innerHTML = `📅 ${agora.toLocaleDateString('pt-BR')} | ⏰ ${agora.toLocaleTimeString('pt-BR')}`;
+    }
+    atualizarDataHora();
+    setInterval(atualizarDataHora, 1000);
+
+    function gerarRelatorio() {
+        const html = document.getElementById("htmlInput").value;
+        if (!html.trim()) {
+            alert("Cole o HTML do F12 primeiro!");
+            return;
+        }
+
+        dadosRelatorio = [];
+        
+        // Captura equipe
+        let equipe = "Não identificada";
+        const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
+        if (equipeMatch) {
+            equipe = equipeMatch[1];
+        }
+        
+        // Extrai as linhas da tabela
+        const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
+        let match;
+        
+        while ((match = linhaRegex.exec(html)) !== null) {
+            const linhaHtml = match[1];
+            if (linhaHtml.includes("<th")) continue;
+            
+            const celulas = [];
+            const tdRegex = /<td[^>]*cellindex="(\d+)"[^>]*>(?:<div[^>]*>)*([\s\S]*?)(?:<\/div>)*<\/td>/gi;
+            let tdMatch;
+            
+            while ((tdMatch = tdRegex.exec(linhaHtml)) !== null) {
+                const cellIndex = parseInt(tdMatch[1]);
+                let conteudo = tdMatch[2];
+                conteudo = conteudo.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+                celulas[cellIndex] = conteudo;
+            }
+            
+            const solicitacao = celulas[3] || "";
+            const descricao = celulas[8] || "";
+            const dataAbertura = celulas[9] || "";
+            const dataPrazo = celulas[11] || "";
+            const logradouro = celulas[18] || "";
+            const numero = celulas[19] || "";
+            const bairro = celulas[20] || "";
+            const cidade = celulas[21] || "";
+            
+            if (solicitacao || logradouro) {
+                dadosRelatorio.push({
+                    equipe: equipe,
+                    solicitacao: solicitacao,
+                    descricao: descricao,
+                    dataAbertura: dataAbertura,
+                    dataPrazo: dataPrazo,
+                    logradouro: logradouro,
+                    numero: numero,
+                    bairro: bairro,
+                    cidade: cidade || "Canarana"
+                });
+            }
+        }
+        
+        if (dadosRelatorio.length === 0) {
+            alert("Nenhuma OS encontrada. Verifique o HTML copiado.");
+        } else {
+            alert(`${dadosRelatorio.length} OS(es) encontrada(s)!`);
+        }
+        
+        renderizarTabela();
+    }
+    
+    function renderizarTabela() {
+        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase();
+        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase();
+        
+        const filtrados = dadosRelatorio.filter(item => {
+            return item.equipe.toLowerCase().includes(filtroEquipe) && 
+                   item.logradouro.toLowerCase().includes(filtroLogradouro);
+        });
+        
+        const tbody = document.getElementById("tabelaBody");
+        tbody.innerHTML = "";
+        
+        for (const item of filtrados) {
+            const enderecoCompleto = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`.trim();
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoCompleto)}`;
+            
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = item.equipe;
+            row.insertCell(1).textContent = item.solicitacao;
+            row.insertCell(2).textContent = item.descricao.substring(0, 60) + (item.descricao.length > 60 ? "..." : "");
+            row.insertCell(3).textContent = item.dataAbertura;
+            row.insertCell(4).textContent = item.dataPrazo;
+            row.insertCell(5).textContent = item.logradouro;
+            row.insertCell(6).textContent = item.numero;
+            row.insertCell(7).textContent = item.bairro;
+            row.insertCell(8).textContent = item.cidade;
+            
+            const cellMap = row.insertCell(9);
+            const link = document.createElement("a");
+            link.href = mapsUrl;
+            link.target = "_blank";
+            link.textContent = "🗺️ Abrir Mapa";
+            link.className = "map-link";
+            cellMap.appendChild(link);
+        }
+        
+        document.getElementById("totalRegistros").innerHTML = `📊 Total de OS: ${filtrados.length}`;
+    }
+    
+    // Função para criar o container do PDF - SEM MARGENS
+    function criarContainerPDF() {
+        const container = document.createElement('div');
+        container.className = 'pdf-container';
+        container.style.background = 'white';
+        container.style.width = '100%';
+        container.style.maxWidth = '100%';
+        container.style.margin = '0';
+        container.style.padding = '0';
+        
+        // Clona o header
+        const headerOriginal = document.getElementById('headerPrincipal');
+        const headerClone = headerOriginal.cloneNode(true);
+        headerClone.style.margin = '0';
+        headerClone.style.borderRadius = '0';
+        headerClone.style.width = '100%';
+        container.appendChild(headerClone);
+        
+        // Clona a tabela
+        const tabelaOriginal = document.getElementById('tabelaRelatorio');
+        const tabelaClone = tabelaOriginal.cloneNode(true);
+        
+        // Ajusta tamanho da fonte da tabela para caber melhor
+        tabelaClone.style.fontSize = '9px';
+        tabelaClone.style.width = '100%';
+        
+        const wrapperClone = document.createElement('div');
+        wrapperClone.style.overflowX = 'auto';
+        wrapperClone.style.width = '100%';
+        wrapperClone.appendChild(tabelaClone);
+        container.appendChild(wrapperClone);
+        
+        // Adiciona o total de registros
+        const totalElement = document.getElementById('totalRegistros');
+        if (totalElement && totalElement.innerHTML) {
+            const totalClone = document.createElement('div');
+            totalClone.style.marginTop = '10px';
+            totalClone.style.padding = '5px';
+            totalClone.style.backgroundColor = '#e9ecef';
+            totalClone.style.borderRadius = '5px';
+            totalClone.style.textAlign = 'center';
+            totalClone.style.fontWeight = 'bold';
+            totalClone.style.fontSize = '10px';
+            totalClone.innerHTML = totalElement.innerHTML;
+            container.appendChild(totalClone);
+        }
+        
+        return container;
+    }
+    
+    function gerarPDF() {
+        if (dadosRelatorio.length === 0) {
+            alert("Gere o relatório primeiro!");
+            return;
+        }
+        
+        // Mostra loading
+        const btnPDF = event.target;
+        const textoOriginal = btnPDF.textContent;
+        btnPDF.textContent = "⏳ Gerando PDF...";
+        btnPDF.disabled = true;
+        
+        // Cria um container temporário
+        const pdfContent = criarContainerPDF();
+        pdfContent.style.position = 'absolute';
+        pdfContent.style.top = '-9999px';
+        pdfContent.style.left = '-9999px';
+        
+        document.body.appendChild(pdfContent);
+        
+        // Configurações do PDF - SEM MARGENS
+        const opt = {
+            margin: 0, // ZERO MARGENS!
+            filename: `aguas_canarana_os_${new Date().toISOString().slice(0,19).replace(/:/g, "-")}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                letterRendering: true
+            },
+            jsPDF: { 
+                unit: 'mm', 
+                format: 'a4', 
+                orientation: 'landscape'
+            }
+        };
+        
+        html2pdf().set(opt).from(pdfContent).save().then(() => {
+            document.body.removeChild(pdfContent);
+            btnPDF.textContent = textoOriginal;
+            btnPDF.disabled = false;
+        }).catch(error => {
+            console.error("Erro no PDF:", error);
+            document.body.removeChild(pdfContent);
+            btnPDF.textContent = textoOriginal;
+            btnPDF.disabled = false;
+            alert("Erro ao gerar PDF. Tente novamente.");
+        });
+    }
+    
+    async function gerarImagem() {
+        if (dadosRelatorio.length === 0) {
+            alert("Gere o relatório primeiro!");
+            return;
+        }
+        
+        const btnImg = event.target;
+        const textoOriginal = btnImg.textContent;
+        btnImg.textContent = "⏳ Gerando Imagem...";
+        btnImg.disabled = true;
+        
+        const imgContent = criarContainerPDF();
+        imgContent.style.position = 'absolute';
+        imgContent.style.top = '-9999px';
+        imgContent.style.left = '-9999px';
+        imgContent.style.width = '1200px';
+        
+        document.body.appendChild(imgContent);
+        
+        try {
+            const canvas = await html2canvas(imgContent, {
+                scale: 2.5,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true,
+                windowWidth: 1200
+            });
+            
+            const imageData = canvas.toDataURL("image/png");
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            modalImg.src = imageData;
+            modal.style.display = "block";
+            
+        } catch (error) {
+            alert("Erro ao gerar imagem: " + error);
+        } finally {
+            document.body.removeChild(imgContent);
+            btnImg.textContent = textoOriginal;
+            btnImg.disabled = false;
+        }
+    }
+    
+    function fecharModal() {
+        document.getElementById("imageModal").style.display = "none";
+    }
+    
+    function exportarExcel() {
+        if (dadosRelatorio.length === 0) {
+            alert("Gere o relatório primeiro!");
+            return;
+        }
+        
+        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase();
+        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase();
+        
+        const filtrados = dadosRelatorio.filter(item => {
+            return item.equipe.toLowerCase().includes(filtroEquipe) && 
+                   item.logradouro.toLowerCase().includes(filtroLogradouro);
+        });
+        
+        let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
+        
+        for (const item of filtrados) {
+            const endereco = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+            csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
+        }
+        
+        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute("download", `aguas_canarana_os_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+    
+    function limparTabela() {
+        document.getElementById("tabelaBody").innerHTML = "";
+        document.getElementById("htmlInput").value = "";
+        dadosRelatorio = [];
+        document.getElementById("totalRegistros").innerHTML = "";
+        document.getElementById("filtroEquipe").value = "";
+        document.getElementById("filtroLogradouro").value = "";
+    }
+    
+    document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
+    document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
+    
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") fecharModal();
+    });
+</script>
+</body>
+</html>
