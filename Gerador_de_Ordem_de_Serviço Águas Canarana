@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Águas Canarana - Relatório de OS</title>
     
-    <!-- Bibliotecas -->
+    <!-- Bibliotecas CDN confiáveis -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     
@@ -200,29 +200,6 @@
             border-radius: 8px;
         }
         
-        /* Estilos específicos para PDF - SEM MARGENS */
-        .pdf-container {
-            background: white;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .pdf-container .header {
-            margin: 0;
-            border-radius: 0;
-        }
-        
-        .pdf-container table {
-            font-size: 10px;
-        }
-        
-        .pdf-container th, 
-        .pdf-container td {
-            padding: 6px 4px;
-        }
-        
         .modal {
             display: none;
             position: fixed;
@@ -266,7 +243,6 @@
 </head>
 <body>
 <div class="container">
-    <!-- HEADER COM LOGO E DATA/HORA -->
     <div class="header" id="headerPrincipal">
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
@@ -300,7 +276,7 @@
             <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro...">
         </div>
         
-        <div class="table-wrapper" id="tabelaWrapper">
+        <div class="table-wrapper">
             <table id="tabelaRelatorio">
                 <thead>
                     <tr>
@@ -334,7 +310,6 @@
 <script>
     let dadosRelatorio = [];
     
-    // Atualiza data e hora automaticamente
     function atualizarDataHora() {
         const agora = new Date();
         document.getElementById("dataHoraAtual").innerHTML = `📅 ${agora.toLocaleDateString('pt-BR')} | ⏰ ${agora.toLocaleTimeString('pt-BR')}`;
@@ -351,14 +326,12 @@
 
         dadosRelatorio = [];
         
-        // Captura equipe
         let equipe = "Não identificada";
         const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
         if (equipeMatch) {
             equipe = equipeMatch[1];
         }
         
-        // Extrai as linhas da tabela
         const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
         let match;
         
@@ -384,7 +357,16 @@
             const logradouro = celulas[18] || "";
             const numero = celulas[19] || "";
             const bairro = celulas[20] || "";
-            const cidade = celulas[21] || "";
+            let cidade = celulas[21] || "Canarana";
+            
+            // CORREÇÃO: Adiciona -MT à cidade
+            if (cidade && cidade !== "Canarana") {
+                cidade = cidade + "-MT";
+            } else if (cidade === "Canarana") {
+                cidade = "CANARANA-MT";
+            } else if (cidade && !cidade.includes("-MT")) {
+                cidade = cidade + "-MT";
+            }
             
             if (solicitacao || logradouro) {
                 dadosRelatorio.push({
@@ -396,7 +378,7 @@
                     logradouro: logradouro,
                     numero: numero,
                     bairro: bairro,
-                    cidade: cidade || "Canarana"
+                    cidade: cidade
                 });
             }
         }
@@ -449,101 +431,69 @@
         document.getElementById("totalRegistros").innerHTML = `📊 Total de OS: ${filtrados.length}`;
     }
     
-    // Função para criar o container do PDF - SEM MARGENS
-    function criarContainerPDF() {
-        const container = document.createElement('div');
-        container.className = 'pdf-container';
-        container.style.background = 'white';
-        container.style.width = '100%';
-        container.style.maxWidth = '100%';
-        container.style.margin = '0';
-        container.style.padding = '0';
-        
-        // Clona o header
-        const headerOriginal = document.getElementById('headerPrincipal');
-        const headerClone = headerOriginal.cloneNode(true);
-        headerClone.style.margin = '0';
-        headerClone.style.borderRadius = '0';
-        headerClone.style.width = '100%';
-        container.appendChild(headerClone);
-        
-        // Clona a tabela
-        const tabelaOriginal = document.getElementById('tabelaRelatorio');
-        const tabelaClone = tabelaOriginal.cloneNode(true);
-        
-        // Ajusta tamanho da fonte da tabela para caber melhor
-        tabelaClone.style.fontSize = '9px';
-        tabelaClone.style.width = '100%';
-        
-        const wrapperClone = document.createElement('div');
-        wrapperClone.style.overflowX = 'auto';
-        wrapperClone.style.width = '100%';
-        wrapperClone.appendChild(tabelaClone);
-        container.appendChild(wrapperClone);
-        
-        // Adiciona o total de registros
-        const totalElement = document.getElementById('totalRegistros');
-        if (totalElement && totalElement.innerHTML) {
-            const totalClone = document.createElement('div');
-            totalClone.style.marginTop = '10px';
-            totalClone.style.padding = '5px';
-            totalClone.style.backgroundColor = '#e9ecef';
-            totalClone.style.borderRadius = '5px';
-            totalClone.style.textAlign = 'center';
-            totalClone.style.fontWeight = 'bold';
-            totalClone.style.fontSize = '10px';
-            totalClone.innerHTML = totalElement.innerHTML;
-            container.appendChild(totalClone);
-        }
-        
-        return container;
-    }
-    
     function gerarPDF() {
         if (dadosRelatorio.length === 0) {
             alert("Gere o relatório primeiro!");
             return;
         }
         
-        // Mostra loading
         const btnPDF = event.target;
         const textoOriginal = btnPDF.textContent;
         btnPDF.textContent = "⏳ Gerando PDF...";
         btnPDF.disabled = true;
         
+        // Pega o elemento que contém a tabela e o header
+        const element = document.getElementById("relatorioCard");
+        
+        // Salva o estado original dos filtros
+        const filtroEquipe = document.getElementById("filtroEquipe");
+        const filtroLogradouro = document.getElementById("filtroLogradouro");
+        const filtroOriginal1 = filtroEquipe.style.display;
+        const filtroOriginal2 = filtroLogradouro.style.display;
+        
+        // Esconde os filtros temporariamente
+        filtroEquipe.style.display = 'none';
+        filtroLogradouro.style.display = 'none';
+        
+        // Clona o elemento para não afetar a tela
+        const cloneElement = element.cloneNode(true);
+        cloneElement.style.padding = '10px';
+        cloneElement.style.margin = '0';
+        cloneElement.style.backgroundColor = 'white';
+        
+        // Remove qualquer input de filtro do clone
+        const cloneFiltros = cloneElement.querySelectorAll('.filtro');
+        cloneFiltros.forEach(f => f.style.display = 'none');
+        
         // Cria um container temporário
-        const pdfContent = criarContainerPDF();
-        pdfContent.style.position = 'absolute';
-        pdfContent.style.top = '-9999px';
-        pdfContent.style.left = '-9999px';
+        const tempContainer = document.createElement('div');
+        tempContainer.appendChild(cloneElement);
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.top = '-9999px';
+        tempContainer.style.left = '-9999px';
+        document.body.appendChild(tempContainer);
         
-        document.body.appendChild(pdfContent);
-        
-        // Configurações do PDF - SEM MARGENS
+        // Configuração do PDF - SEM MARGENS
         const opt = {
-            margin: 0, // ZERO MARGENS!
+            margin: [0, 0, 0, 0],
             filename: `aguas_canarana_os_${new Date().toISOString().slice(0,19).replace(/:/g, "-")}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2, 
-                useCORS: true, 
-                logging: false,
-                letterRendering: true
-            },
-            jsPDF: { 
-                unit: 'mm', 
-                format: 'a4', 
-                orientation: 'landscape'
-            }
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
         };
         
-        html2pdf().set(opt).from(pdfContent).save().then(() => {
-            document.body.removeChild(pdfContent);
+        html2pdf().set(opt).from(tempContainer).save().then(() => {
+            document.body.removeChild(tempContainer);
+            // Restaura os filtros
+            filtroEquipe.style.display = filtroOriginal1;
+            filtroLogradouro.style.display = filtroOriginal2;
             btnPDF.textContent = textoOriginal;
             btnPDF.disabled = false;
         }).catch(error => {
             console.error("Erro no PDF:", error);
-            document.body.removeChild(pdfContent);
+            document.body.removeChild(tempContainer);
+            filtroEquipe.style.display = filtroOriginal1;
+            filtroLogradouro.style.display = filtroOriginal2;
             btnPDF.textContent = textoOriginal;
             btnPDF.disabled = false;
             alert("Erro ao gerar PDF. Tente novamente.");
@@ -561,21 +511,22 @@
         btnImg.textContent = "⏳ Gerando Imagem...";
         btnImg.disabled = true;
         
-        const imgContent = criarContainerPDF();
-        imgContent.style.position = 'absolute';
-        imgContent.style.top = '-9999px';
-        imgContent.style.left = '-9999px';
-        imgContent.style.width = '1200px';
+        const element = document.getElementById("relatorioCard");
         
-        document.body.appendChild(imgContent);
+        const filtroEquipe = document.getElementById("filtroEquipe");
+        const filtroLogradouro = document.getElementById("filtroLogradouro");
+        const filtroOriginal1 = filtroEquipe.style.display;
+        const filtroOriginal2 = filtroLogradouro.style.display;
+        
+        filtroEquipe.style.display = 'none';
+        filtroLogradouro.style.display = 'none';
         
         try {
-            const canvas = await html2canvas(imgContent, {
+            const canvas = await html2canvas(element, {
                 scale: 2.5,
                 backgroundColor: '#ffffff',
                 logging: false,
-                useCORS: true,
-                windowWidth: 1200
+                useCORS: true
             });
             
             const imageData = canvas.toDataURL("image/png");
@@ -587,7 +538,8 @@
         } catch (error) {
             alert("Erro ao gerar imagem: " + error);
         } finally {
-            document.body.removeChild(imgContent);
+            filtroEquipe.style.display = filtroOriginal1;
+            filtroLogradouro.style.display = filtroOriginal2;
             btnImg.textContent = textoOriginal;
             btnImg.disabled = false;
         }
