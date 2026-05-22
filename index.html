@@ -486,7 +486,9 @@
             return;
         }
 
-        dadosRelatorio = [];
+        // Monta os dados numa lista TEMPORÁRIA. Só substitui a lista oficial
+        // se realmente encontrar algo — assim a tabela nunca esvazia à toa.
+        const dadosNovos = [];
         
         // Captura a equipe selecionada
         let equipe = "Não identificada";
@@ -541,7 +543,7 @@
             }
             
             if (solicitacao || logradouro) {
-                dadosRelatorio.push({
+                dadosNovos.push({
                     equipe: equipe,
                     solicitacao: solicitacao,
                     descricao: descricao,
@@ -556,11 +558,18 @@
             }
         }
         
-        if (dadosRelatorio.length === 0) {
-            if (!silencioso) alert("❌ Nenhuma OS encontrada. Verifique se o HTML copiado contém as linhas da tabela.");
-        } else {
-            if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
+        if (dadosNovos.length === 0) {
+            // Não achou nada. Em modo silencioso (filtro automático), NÃO mexe
+            // na tabela existente — apenas avisa se foi clique manual no botão.
+            if (!silencioso) {
+                alert("❌ Nenhuma OS encontrada. Verifique se o HTML copiado contém as linhas da tabela.");
+            }
+            return;
         }
+        
+        // Encontrou dados: agora sim substitui a lista oficial
+        dadosRelatorio = dadosNovos;
+        if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
         
         renderizarTabela();
     }
@@ -711,6 +720,17 @@
         const tabelaOriginal = document.getElementById('tabelaRelatorio');
         const tabelaClone = tabelaOriginal.cloneNode(true);
         tabelaClone.style.width = '100%';
+        tabelaClone.style.borderCollapse = 'collapse';
+        // IMPORTANTE: o cabeçalho da tabela tem "position: sticky" no CSS.
+        // Isso faz ele aparecer EMBAIXO na imagem gerada pelo html2canvas.
+        // Aqui forçamos o cabeçalho a ficar em posição normal (em cima).
+        const cabecalhosClone = tabelaClone.querySelectorAll('thead th');
+        cabecalhosClone.forEach(function(th) {
+            th.style.position = 'static';
+            th.style.top = 'auto';
+            th.style.background = '#005c8a';
+            th.style.color = 'white';
+        });
         tempContainer.appendChild(tabelaClone);
         
         // Clona o TOTAL
@@ -825,21 +845,14 @@
         document.getElementById("imageModal").style.display = "none";
     }
     
-    // Event Listeners
-    document.getElementById("btnGerar").addEventListener("click", function() { gerarRelatorio(false); });
-    document.getElementById("btnExcel").addEventListener("click", exportarExcel);
-    document.getElementById("btnPDF").addEventListener("click", gerarPDF);
-    document.getElementById("btnImg").addEventListener("click", gerarImagem);
-    document.getElementById("btnLimparOS").addEventListener("click", limparOS);
-    document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
-    
     // FILTROS EM TEMPO REAL - FUNCIONAM INSTANTANEAMENTE
     // Se ainda não houver OS gerada mas houver código colado na caixa,
     // ao digitar no filtro o sistema gera os dados automaticamente (sem avisos)
     // e em seguida aplica o filtro.
     function filtrarAoDigitar() {
         if (dadosRelatorio.length === 0) {
-            const temCodigo = document.getElementById("htmlInput").value.trim() !== "";
+            const caixa = document.getElementById("htmlInput");
+            const temCodigo = caixa && caixa.value.trim() !== "";
             if (temCodigo) {
                 gerarRelatorio(true); // modo silencioso: gera sem alertas
                 return; // gerarRelatorio já chama renderizarTabela
@@ -848,12 +861,46 @@
         renderizarTabela();
     }
     
-    document.getElementById("filtroEquipe").addEventListener("input", filtrarAoDigitar);
-    document.getElementById("filtroLogradouro").addEventListener("input", filtrarAoDigitar);
+    // Liga um botão a uma função com segurança (não quebra se o elemento não existir)
+    function ligarBotao(id, funcao) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("click", funcao);
+    }
     
-    document.addEventListener("keydown", function(e) {
-        if (e.key === "Escape") fecharModal();
-    });
+    // Liga um campo de filtro com segurança, ouvindo input E keyup
+    function ligarFiltro(id, funcao) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener("input", funcao);
+            el.addEventListener("keyup", funcao);
+        }
+    }
+    
+    // Registra TODOS os eventos. Só roda quando a página estiver pronta,
+    // evitando o erro de o script rodar antes dos campos existirem.
+    function iniciarSistema() {
+        ligarBotao("btnGerar", function() { gerarRelatorio(false); });
+        ligarBotao("btnExcel", exportarExcel);
+        ligarBotao("btnPDF", gerarPDF);
+        ligarBotao("btnImg", gerarImagem);
+        ligarBotao("btnLimparOS", limparOS);
+        ligarBotao("btnLimparCodigo", limparCodigo);
+        
+        ligarFiltro("filtroEquipe", filtrarAoDigitar);
+        ligarFiltro("filtroLogradouro", filtrarAoDigitar);
+        
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "Escape") fecharModal();
+        });
+    }
+    
+    // Se a página ainda está carregando, espera; se já carregou, inicia direto.
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", iniciarSistema);
+    } else {
+        iniciarSistema();
+    }
+
 </script>
 </body>
 </html>
