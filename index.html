@@ -25,7 +25,6 @@
             margin: 0 auto;
         }
         
-        /* HEADER - FAIXA AZUL EM CIMA */
         .header {
             background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
             border-radius: 16px;
@@ -134,22 +133,12 @@
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
         
-        /* FILTRO - APENAS EQUIPE */
         .filtro {
             margin-bottom: 16px;
             display: flex;
             flex-direction: row;
             gap: 12px;
             flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .filtro label {
-            font-weight: bold;
-            color: #005c8a;
-            background: #e7f1ff;
-            padding: 8px 15px;
-            border-radius: 8px;
         }
         
         .filtro input {
@@ -158,7 +147,7 @@
             border-radius: 8px;
             font-size: 14px;
             flex: 1;
-            min-width: 250px;
+            min-width: 200px;
             transition: all 0.3s ease;
         }
         
@@ -319,13 +308,11 @@
             .logo-area img { height: 40px; }
             .footer { font-size: 10px; }
             .filtro input { font-size: 12px; padding: 10px; }
-            .filtro label { font-size: 12px; padding: 5px 10px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- HEADER - FAIXA AZUL EM CIMA -->
     <div class="header" id="headerPrincipal">
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
@@ -356,11 +343,11 @@
 
     <div class="card" id="relatorioCard">
         <div class="filtro">
-            <label>👥 Filtrar por Operador:</label>
-            <input type="text" id="filtroEquipe" placeholder="Digite o nome do operador (mínimo 3 letras)..." autocomplete="off">
+            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Operador (mínimo 3 letras)..." autocomplete="off">
+            <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro (mínimo 3 letras)..." autocomplete="off">
         </div>
         <div class="filtro-info" id="filtroInfo">
-            💡 Digite pelo menos 3 letras para filtrar os operadores
+            💡 Digite pelo menos 3 letras para filtrar
         </div>
         
         <div class="table-wrapper">
@@ -402,7 +389,6 @@
     let dadosRelatorio = [];
     let timeoutFiltro = null;
     
-    // Normaliza texto: remove acentos, minúsculas, trim
     function normalizar(texto) {
         if (texto === null || texto === undefined) return "";
         return texto
@@ -515,13 +501,18 @@
     
     function renderizarTabela() {
         const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
+        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
         
-        // Só filtra se tiver 3 letras ou mais
         let filtrados = dadosRelatorio;
+        
+        // Só filtra por equipe se tiver 3 letras ou mais
         if (filtroEquipe.length >= 3) {
-            filtrados = dadosRelatorio.filter(item => {
-                return normalizar(item.equipe).includes(filtroEquipe);
-            });
+            filtrados = filtrados.filter(item => normalizar(item.equipe).includes(filtroEquipe));
+        }
+        
+        // Só filtra por logradouro se tiver 3 letras ou mais
+        if (filtroLogradouro.length >= 3) {
+            filtrados = filtrados.filter(item => normalizar(item.logradouro).includes(filtroLogradouro));
         }
         
         const tbody = document.getElementById("tabelaBody");
@@ -555,28 +546,33 @@
         const totalGeral = dadosRelatorio.length;
         
         let mensagem = `📊 Total de OS: ${totalFiltrados}`;
-        if (filtroEquipe.length >= 3 && totalFiltrados !== totalGeral) {
+        if ((filtroEquipe.length >= 3 || filtroLogradouro.length >= 3) && totalFiltrados !== totalGeral) {
             mensagem += ` (filtrado de ${totalGeral} total)`;
         }
         document.getElementById("totalRegistros").innerHTML = mensagem;
         
+        // Atualiza info do filtro
         const infoDiv = document.getElementById("filtroInfo");
-        if (filtroEquipe.length >= 3 && totalFiltrados !== totalGeral) {
-            infoDiv.innerHTML = `🎯 Filtro ativo: exibindo ${totalFiltrados} OS(s) do operador "${document.getElementById("filtroEquipe").value}"`;
-        } else if (filtroEquipe.length >= 3 && totalFiltrados === totalGeral) {
-            infoDiv.innerHTML = `🔍 Nenhum operador encontrado com "${document.getElementById("filtroEquipe").value}" - exibindo todos os ${totalGeral} resultados`;
+        const equipeValor = document.getElementById("filtroEquipe").value;
+        const logradouroValor = document.getElementById("filtroLogradouro").value;
+        
+        if (filtroEquipe.length >= 3 && filtroLogradouro.length >= 3) {
+            infoDiv.innerHTML = `🎯 Filtros ativos: Operador "${equipeValor}" + Logradouro "${logradouroValor}" → ${totalFiltrados} OS(s) encontradas`;
+        } else if (filtroEquipe.length >= 3) {
+            infoDiv.innerHTML = `🎯 Filtro por Operador: "${equipeValor}" → ${totalFiltrados} OS(s) encontradas`;
+        } else if (filtroLogradouro.length >= 3) {
+            infoDiv.innerHTML = `🎯 Filtro por Logradouro: "${logradouroValor}" → ${totalFiltrados} OS(s) encontradas`;
         } else if (filtroEquipe.length > 0 && filtroEquipe.length < 3) {
-            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtroEquipe.length} caractere(s) para filtrar os operadores - ${totalGeral} OS(s) no total`;
+            infoDiv.innerHTML = `⌨️ Operador: digite mais ${3 - filtroEquipe.length} caractere(s) - ${totalGeral} OS(s) no total`;
+        } else if (filtroLogradouro.length > 0 && filtroLogradouro.length < 3) {
+            infoDiv.innerHTML = `⌨️ Logradouro: digite mais ${3 - filtroLogradouro.length} caractere(s) - ${totalGeral} OS(s) no total`;
         } else {
-            infoDiv.innerHTML = `💡 Digite pelo menos 3 letras para filtrar os operadores - ${totalGeral} OS(s) no total`;
+            infoDiv.innerHTML = `💡 Digite pelo menos 3 letras para filtrar - ${totalGeral} OS(s) no total`;
         }
     }
     
-    // Filtro com delay para não travar
     function aplicarFiltro() {
-        // Limpa timeout anterior
         if (timeoutFiltro) clearTimeout(timeoutFiltro);
-        // Aplica o filtro após 300ms (enquanto digita)
         timeoutFiltro = setTimeout(() => {
             renderizarTabela();
         }, 300);
@@ -607,7 +603,6 @@
         }, 500);
     }
     
-    // Salvar Imagem - CORRIGIDA (faixa azul em cima)
     async function gerarImagem() {
         if (dadosRelatorio.length === 0) {
             alert("⚠️ Gere o relatório primeiro!");
@@ -631,7 +626,7 @@
         tempContainer.style.width = 'fit-content';
         tempContainer.style.minWidth = '100%';
         
-        // ========== 1. HEADER CONSTRUÍDO MANUALMENTE ==========
+        // HEADER CONSTRUÍDO MANUALMENTE
         const headerClone = document.createElement('div');
         headerClone.style.background = 'linear-gradient(135deg, #005c8a 0%, #003d5e 100%)';
         headerClone.style.borderRadius = '12px';
@@ -644,7 +639,6 @@
         headerClone.style.flexWrap = 'wrap';
         headerClone.style.gap = '15px';
         
-        // Logo + nome
         const logoArea = document.createElement('div');
         logoArea.style.display = 'flex';
         logoArea.style.alignItems = 'center';
@@ -665,10 +659,8 @@
         empresaSpan.style.fontWeight = 'bold';
         empresaSpan.textContent = 'Águas Canarana';
         logoArea.appendChild(empresaSpan);
-        
         headerClone.appendChild(logoArea);
         
-        // Título
         const tituloDiv = document.createElement('div');
         tituloDiv.style.background = 'rgba(255,255,255,0.2)';
         tituloDiv.style.padding = '8px 18px';
@@ -678,7 +670,6 @@
         tituloDiv.textContent = '📋 RELATÓRIO DE OS';
         headerClone.appendChild(tituloDiv);
         
-        // Data e hora
         const dataDiv = document.createElement('div');
         dataDiv.style.fontSize = '0.85rem';
         dataDiv.style.background = 'rgba(0,0,0,0.3)';
@@ -686,17 +677,15 @@
         dataDiv.style.borderRadius = '20px';
         dataDiv.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
         headerClone.appendChild(dataDiv);
-        
         tempContainer.appendChild(headerClone);
         
-        // ========== 2. TABELA ==========
+        // TABELA
         const tabelaOriginal = document.getElementById('tabelaRelatorio');
         const tabelaClone = tabelaOriginal.cloneNode(true);
         tabelaClone.style.width = '100%';
         tabelaClone.style.borderCollapse = 'collapse';
         tabelaClone.style.fontSize = '12px';
         
-        // Remove sticky do cabeçalho
         const thead = tabelaClone.querySelector('thead');
         if (thead) {
             thead.style.position = 'relative';
@@ -716,10 +705,9 @@
             td.style.border = '1px solid #ddd';
             td.style.padding = '8px 6px';
         });
-        
         tempContainer.appendChild(tabelaClone);
         
-        // ========== 3. TOTAL ==========
+        // TOTAL
         const totalOriginal = document.getElementById('totalRegistros');
         if (totalOriginal && totalOriginal.innerHTML) {
             const totalClone = document.createElement('div');
@@ -733,7 +721,7 @@
             tempContainer.appendChild(totalClone);
         }
         
-        // ========== 4. RODAPÉ ==========
+        // RODAPÉ
         const footerClone = document.createElement('div');
         footerClone.style.textAlign = 'center';
         footerClone.style.padding = '12px';
@@ -786,12 +774,14 @@
         }
         
         const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
+        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
         
         let filtrados = dadosRelatorio;
         if (filtroEquipe.length >= 3) {
-            filtrados = dadosRelatorio.filter(item => {
-                return normalizar(item.equipe).includes(filtroEquipe);
-            });
+            filtrados = filtrados.filter(item => normalizar(item.equipe).includes(filtroEquipe));
+        }
+        if (filtroLogradouro.length >= 3) {
+            filtrados = filtrados.filter(item => normalizar(item.logradouro).includes(filtroLogradouro));
         }
         
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
@@ -818,7 +808,8 @@
         dadosRelatorio = [];
         document.getElementById("totalRegistros").innerHTML = "";
         document.getElementById("filtroEquipe").value = "";
-        document.getElementById("filtroInfo").innerHTML = "💡 Digite pelo menos 3 letras para filtrar os operadores";
+        document.getElementById("filtroLogradouro").value = "";
+        document.getElementById("filtroInfo").innerHTML = "💡 Digite pelo menos 3 letras para filtrar";
         alert("✅ OS limpas!");
     }
     
@@ -851,6 +842,7 @@
     document.getElementById("btnLimparOS").addEventListener("click", limparOS);
     document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
     document.getElementById("filtroEquipe").addEventListener("input", filtrarAoDigitar);
+    document.getElementById("filtroLogradouro").addEventListener("input", filtrarAoDigitar);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
 </script>
 </body>
