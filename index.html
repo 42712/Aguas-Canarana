@@ -25,7 +25,6 @@
             margin: 0 auto;
         }
         
-        /* HEADER - FAIXA AZUL EM CIMA */
         .header {
             background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
             border-radius: 16px;
@@ -134,7 +133,6 @@
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
         
-        /* FILTROS - ESTILO MELHORADO */
         .filtro {
             margin-bottom: 16px;
             display: flex;
@@ -164,7 +162,6 @@
             font-weight: normal;
         }
         
-        /* CONTADOR DE FILTRO */
         .filtro-info {
             font-size: 12px;
             color: #6c757d;
@@ -203,7 +200,6 @@
             background: #f8f9fa;
         }
         
-        /* Destaque para linha ao passar o mouse */
         tr:hover {
             background: #e8f4f8;
             cursor: pointer;
@@ -222,7 +218,6 @@
         
         .map-link:hover {
             background: #005c8a;
-            transform: scale(1.02);
         }
         
         .total {
@@ -235,7 +230,6 @@
             border-radius: 8px;
         }
         
-        /* Rodapé do desenvolvedor */
         .footer {
             text-align: center;
             padding: 12px;
@@ -247,17 +241,6 @@
             border-radius: 12px;
         }
         
-        .footer a {
-            color: #005c8a;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Estilos para impressão PDF */
         @media print {
             body {
                 background: white;
@@ -288,15 +271,11 @@
                 padding: 0;
                 margin: 0;
             }
-            .total {
-                margin-top: 10px;
-            }
             .footer {
                 position: fixed;
                 bottom: 0;
                 width: 100%;
                 background: white;
-                border-top: 1px solid #ddd;
                 font-size: 10px;
             }
         }
@@ -342,39 +321,10 @@
             .footer { font-size: 10px; }
             .filtro input { font-size: 12px; padding: 10px; }
         }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Badge de resultado do filtro */
-        .badge-filtro {
-            display: inline-block;
-            background: #005c8a20;
-            color: #005c8a;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- HEADER - FAIXA AZUL EM CIMA -->
     <div class="header" id="headerPrincipal">
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
@@ -409,7 +359,7 @@
             <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro... (ex: SÃO, RIO, TRES)" autocomplete="off">
         </div>
         <div class="filtro-info" id="filtroInfo">
-            💡 Digite para filtrar em tempo real - resultado será atualizado automaticamente
+            💡 Digite para filtrar em tempo real
         </div>
         
         <div class="table-wrapper">
@@ -434,7 +384,6 @@
         <div id="totalRegistros" class="total"></div>
     </div>
     
-    <!-- Rodapé com a marca do desenvolvedor -->
     <div class="footer">
         🚀 Desenvolvido por <strong>Marcos Duarte</strong> | 📞 (62) 98469-6547
     </div>
@@ -451,19 +400,6 @@
 <script>
     let dadosRelatorio = [];
     
-    // ====== CORREÇÃO DO FILTRO ======
-    // Normaliza texto: remove acentos, passa para minúsculas e tira espaços extras.
-    // Assim o filtro funciona digitando com ou sem acento e em maiúsculas/minúsculas.
-    function normalizar(texto) {
-        if (texto === null || texto === undefined) return "";
-        return texto
-            .toString()
-            .normalize("NFD")                 // separa letras dos acentos
-            .replace(/[\u0300-\u036f]/g, "")  // remove os acentos
-            .toLowerCase()
-            .trim();
-    }
-    
     function atualizarDataHora() {
         const agora = new Date();
         document.getElementById("dataHoraAtual").innerHTML = `📅 ${agora.toLocaleDateString('pt-BR')} | ⏰ ${agora.toLocaleTimeString('pt-BR')}`;
@@ -479,25 +415,21 @@
         return nomeLimpo;
     }
 
-    function gerarRelatorio(silencioso) {
+    function gerarRelatorio() {
         const html = document.getElementById("htmlInput").value;
         if (!html.trim()) {
-            if (!silencioso) alert("⚠️ Cole o HTML do F12 primeiro!");
+            alert("⚠️ Cole o HTML do F12 primeiro!");
             return;
         }
 
-        // Monta os dados numa lista TEMPORÁRIA. Só substitui a lista oficial
-        // se realmente encontrar algo — assim a tabela nunca esvazia à toa.
-        const dadosNovos = [];
+        dadosRelatorio = [];
         
-        // Captura a equipe selecionada
         let equipe = "Não identificada";
         const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
         if (equipeMatch) {
             equipe = limparNomeEquipe(equipeMatch[1]);
         }
         
-        // Se não achou, tenta outro padrão
         if (equipe === "Não identificada") {
             const equipeMatch2 = html.match(/CANARANA\s*-\s*(OP-[A-Z]+[^<]*)/i);
             if (equipeMatch2) {
@@ -507,7 +439,6 @@
         
         const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
         let match;
-        let count = 0;
         
         while ((match = linhaRegex.exec(html)) !== null) {
             const linhaHtml = match[1];
@@ -528,12 +459,14 @@
             const descricao = celulas[8] || "";
             const dataAbertura = celulas[9] || "";
             const dataPrazo = celulas[11] || "";
-            const logradouro = celulas[18] || "";
+            let logradouro = celulas[18] || "";
             const numero = celulas[19] || "";
             const bairro = celulas[20] || "";
             let cidade = celulas[21] || "Canarana";
             
-            // Cidade como CANARANA-MT
+            // Limpa o logradouro (remove espaços extras)
+            logradouro = logradouro.replace(/\s+/g, ' ').trim();
+            
             if (cidade && cidade !== "Canarana") {
                 cidade = cidade.toUpperCase().replace(/-MT$/i, '') + "-MT";
             } else if (cidade === "Canarana") {
@@ -543,7 +476,7 @@
             }
             
             if (solicitacao || logradouro) {
-                dadosNovos.push({
+                dadosRelatorio.push({
                     equipe: equipe,
                     solicitacao: solicitacao,
                     descricao: descricao,
@@ -554,35 +487,32 @@
                     bairro: bairro,
                     cidade: cidade
                 });
-                count++;
             }
         }
         
-        if (dadosNovos.length === 0) {
-            // Não achou nada. Em modo silencioso (filtro automático), NÃO mexe
-            // na tabela existente — apenas avisa se foi clique manual no botão.
-            if (!silencioso) {
-                alert("❌ Nenhuma OS encontrada. Verifique se o HTML copiado contém as linhas da tabela.");
-            }
-            return;
+        if (dadosRelatorio.length === 0) {
+            alert("❌ Nenhuma OS encontrada. Verifique o HTML copiado.");
+        } else {
+            alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
         }
-        
-        // Encontrou dados: agora sim substitui a lista oficial
-        dadosRelatorio = dadosNovos;
-        if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
         
         renderizarTabela();
     }
     
     function renderizarTabela() {
-        // Normaliza os termos digitados (sem acento, minúsculo)
-        const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
-        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
+        // PEGA OS VALORES DOS FILTROS - tudo em minúsculo e sem espaços extras
+        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase().trim();
+        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase().trim();
         
+        // APLICA OS FILTROS - IGUAL AO SEU CÓDIGO QUE FUNCIONOU!
         const filtrados = dadosRelatorio.filter(item => {
-            // Normaliza também os dados antes de comparar
-            const matchEquipe = filtroEquipe === "" || normalizar(item.equipe).includes(filtroEquipe);
-            const matchLogradouro = filtroLogradouro === "" || normalizar(item.logradouro).includes(filtroLogradouro);
+            // Filtro por Equipe (igual ao seu que funciona)
+            const matchEquipe = filtroEquipe === "" || item.equipe.toLowerCase().includes(filtroEquipe);
+            
+            // Filtro por Logradouro (MESMA LÓGICA!)
+            const matchLogradouro = filtroLogradouro === "" || item.logradouro.toLowerCase().includes(filtroLogradouro);
+            
+            // Retorna true se ambos os filtros passarem
             return matchEquipe && matchLogradouro;
         });
         
@@ -645,7 +575,7 @@
         if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
         if (botoesCard) botoesCard.style.display = 'none';
         
-        alert("📄 O PDF será gerado usando a impressão do navegador.\n\n1. Clique em 'Salvar como PDF'\n2. Escolha o local para salvar");
+        alert("📄 Clique em 'Salvar como PDF' na janela que vai abrir");
         
         window.print();
         
@@ -656,7 +586,6 @@
         }, 500);
     }
     
-    // Salvar Imagem - COM HEADER E RODAPÉ
     async function gerarImagem() {
         if (dadosRelatorio.length === 0) {
             alert("⚠️ Gere o relatório primeiro!");
@@ -668,72 +597,25 @@
         btnImg.textContent = "⏳ Gerando...";
         btnImg.disabled = true;
         
-        // Esconde os filtros temporariamente
         const filtroDiv = document.querySelector('.filtro');
         const filtroInfoDiv = document.querySelector('.filtro-info');
-        const filtroOriginalDisplay = filtroDiv ? filtroDiv.style.display : '';
-        const filtroInfoOriginalDisplay = filtroInfoDiv ? filtroInfoDiv.style.display : '';
         if (filtroDiv) filtroDiv.style.display = 'none';
         if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
         
-        // Cria um container TEMPORÁRIO que vai conter o HEADER + TABELA + RODAPÉ
         const tempContainer = document.createElement('div');
         tempContainer.style.backgroundColor = 'white';
         tempContainer.style.padding = '20px';
         tempContainer.style.borderRadius = '12px';
         
-        // Cria o HEADER (faixa azul) DO ZERO para garantir a ordem correta na imagem.
-        // O html2canvas embaralha layouts flex ao clonar, por isso montamos manualmente.
-        const headerClone = document.createElement('div');
-        headerClone.style.background = '#005c8a';
-        headerClone.style.borderRadius = '12px';
-        headerClone.style.padding = '16px 20px';
+        const headerClone = document.getElementById('headerPrincipal').cloneNode(true);
+        headerClone.style.margin = '0';
         headerClone.style.marginBottom = '20px';
-        headerClone.style.color = 'white';
-        headerClone.style.textAlign = 'center';
-
-        // Linha 1: nome da empresa
-        const linhaEmpresa = document.createElement('div');
-        linhaEmpresa.style.fontSize = '20px';
-        linhaEmpresa.style.fontWeight = 'bold';
-        linhaEmpresa.style.marginBottom = '6px';
-        linhaEmpresa.textContent = '💧 Águas Canarana';
-        headerClone.appendChild(linhaEmpresa);
-
-        // Linha 2: título do relatório
-        const linhaTitulo = document.createElement('div');
-        linhaTitulo.style.fontSize = '16px';
-        linhaTitulo.style.fontWeight = 'bold';
-        linhaTitulo.style.marginBottom = '6px';
-        linhaTitulo.textContent = '📋 RELATÓRIO DE OS';
-        headerClone.appendChild(linhaTitulo);
-
-        // Linha 3: data e hora
-        const linhaData = document.createElement('div');
-        linhaData.style.fontSize = '13px';
-        linhaData.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
-        headerClone.appendChild(linhaData);
-
         tempContainer.appendChild(headerClone);
         
-        // Clona a TABELA
-        const tabelaOriginal = document.getElementById('tabelaRelatorio');
-        const tabelaClone = tabelaOriginal.cloneNode(true);
+        const tabelaClone = document.getElementById('tabelaRelatorio').cloneNode(true);
         tabelaClone.style.width = '100%';
-        tabelaClone.style.borderCollapse = 'collapse';
-        // IMPORTANTE: o cabeçalho da tabela tem "position: sticky" no CSS.
-        // Isso faz ele aparecer EMBAIXO na imagem gerada pelo html2canvas.
-        // Aqui forçamos o cabeçalho a ficar em posição normal (em cima).
-        const cabecalhosClone = tabelaClone.querySelectorAll('thead th');
-        cabecalhosClone.forEach(function(th) {
-            th.style.position = 'static';
-            th.style.top = 'auto';
-            th.style.background = '#005c8a';
-            th.style.color = 'white';
-        });
         tempContainer.appendChild(tabelaClone);
         
-        // Clona o TOTAL
         const totalOriginal = document.getElementById('totalRegistros');
         if (totalOriginal && totalOriginal.innerHTML) {
             const totalClone = document.createElement('div');
@@ -747,7 +629,6 @@
             tempContainer.appendChild(totalClone);
         }
         
-        // Adiciona o RODAPÉ do desenvolvedor
         const footerClone = document.createElement('div');
         footerClone.style.textAlign = 'center';
         footerClone.style.padding = '12px';
@@ -758,7 +639,6 @@
         footerClone.innerHTML = '🚀 Desenvolvido por <strong>Marcos Duarte</strong> | 📞 (62) 98469-6547';
         tempContainer.appendChild(footerClone);
         
-        // Adiciona ao body para capturar
         tempContainer.style.position = 'absolute';
         tempContainer.style.top = '-9999px';
         tempContainer.style.left = '-9999px';
@@ -769,23 +649,19 @@
                 scale: 2.5,
                 backgroundColor: '#ffffff',
                 logging: false,
-                useCORS: true,
-                windowWidth: tempContainer.scrollWidth
+                useCORS: true
             });
             
             const imageData = canvas.toDataURL('image/png');
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            modalImg.src = imageData;
-            modal.style.display = 'block';
+            document.getElementById('modalImage').src = imageData;
+            document.getElementById('imageModal').style.display = 'block';
             
         } catch (error) {
-            console.error('Erro:', error);
             alert('Erro ao gerar imagem: ' + error.message);
         } finally {
             document.body.removeChild(tempContainer);
-            if (filtroDiv) filtroDiv.style.display = filtroOriginalDisplay;
-            if (filtroInfoDiv) filtroInfoDiv.style.display = filtroInfoOriginalDisplay;
+            if (filtroDiv) filtroDiv.style.display = '';
+            if (filtroInfoDiv) filtroInfoDiv.style.display = '';
             btnImg.textContent = textoOriginal;
             btnImg.disabled = false;
         }
@@ -797,13 +673,12 @@
             return;
         }
         
-        // Normaliza os termos digitados (sem acento, minúsculo)
-        const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
-        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
+        const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase().trim();
+        const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase().trim();
         
         const filtrados = dadosRelatorio.filter(item => {
-            const matchEquipe = filtroEquipe === "" || normalizar(item.equipe).includes(filtroEquipe);
-            const matchLogradouro = filtroLogradouro === "" || normalizar(item.logradouro).includes(filtroLogradouro);
+            const matchEquipe = filtroEquipe === "" || item.equipe.toLowerCase().includes(filtroEquipe);
+            const matchLogradouro = filtroLogradouro === "" || item.logradouro.toLowerCase().includes(filtroLogradouro);
             return matchEquipe && matchLogradouro;
         });
         
@@ -832,75 +707,33 @@
         document.getElementById("totalRegistros").innerHTML = "";
         document.getElementById("filtroEquipe").value = "";
         document.getElementById("filtroLogradouro").value = "";
-        document.getElementById("filtroInfo").innerHTML = "💡 Digite para filtrar em tempo real - aguardando dados";
-        alert("✅ OS limpas! O código HTML continua no campo abaixo.");
+        document.getElementById("filtroInfo").innerHTML = "💡 Digite para filtrar em tempo real";
+        alert("✅ OS limpas!");
     }
     
     function limparCodigo() {
         document.getElementById("htmlInput").value = "";
-        alert("✅ Código limpo! As OS exibidas continuam na tabela.");
+        alert("✅ Código limpo!");
     }
     
     function fecharModal() {
         document.getElementById("imageModal").style.display = "none";
     }
     
-    // FILTROS EM TEMPO REAL - FUNCIONAM INSTANTANEAMENTE
-    // Se ainda não houver OS gerada mas houver código colado na caixa,
-    // ao digitar no filtro o sistema gera os dados automaticamente (sem avisos)
-    // e em seguida aplica o filtro.
-    function filtrarAoDigitar() {
-        if (dadosRelatorio.length === 0) {
-            const caixa = document.getElementById("htmlInput");
-            const temCodigo = caixa && caixa.value.trim() !== "";
-            if (temCodigo) {
-                gerarRelatorio(true); // modo silencioso: gera sem alertas
-                return; // gerarRelatorio já chama renderizarTabela
-            }
-        }
-        renderizarTabela();
-    }
+    document.getElementById("btnGerar").addEventListener("click", gerarRelatorio);
+    document.getElementById("btnExcel").addEventListener("click", exportarExcel);
+    document.getElementById("btnPDF").addEventListener("click", gerarPDF);
+    document.getElementById("btnImg").addEventListener("click", gerarImagem);
+    document.getElementById("btnLimparOS").addEventListener("click", limparOS);
+    document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
     
-    // Liga um botão a uma função com segurança (não quebra se o elemento não existir)
-    function ligarBotao(id, funcao) {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener("click", funcao);
-    }
+    // FILTROS EM TEMPO REAL - USANDO A MESMA LÓGICA QUE FUNCIONOU PARA EQUIPE
+    document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
+    document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
     
-    // Liga um campo de filtro com segurança, ouvindo input E keyup
-    function ligarFiltro(id, funcao) {
-        const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener("input", funcao);
-            el.addEventListener("keyup", funcao);
-        }
-    }
-    
-    // Registra TODOS os eventos. Só roda quando a página estiver pronta,
-    // evitando o erro de o script rodar antes dos campos existirem.
-    function iniciarSistema() {
-        ligarBotao("btnGerar", function() { gerarRelatorio(false); });
-        ligarBotao("btnExcel", exportarExcel);
-        ligarBotao("btnPDF", gerarPDF);
-        ligarBotao("btnImg", gerarImagem);
-        ligarBotao("btnLimparOS", limparOS);
-        ligarBotao("btnLimparCodigo", limparCodigo);
-        
-        ligarFiltro("filtroEquipe", filtrarAoDigitar);
-        ligarFiltro("filtroLogradouro", filtrarAoDigitar);
-        
-        document.addEventListener("keydown", function(e) {
-            if (e.key === "Escape") fecharModal();
-        });
-    }
-    
-    // Se a página ainda está carregando, espera; se já carregou, inicia direto.
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", iniciarSistema);
-    } else {
-        iniciarSistema();
-    }
-
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") fecharModal();
+    });
 </script>
 </body>
 </html>
