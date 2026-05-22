@@ -136,12 +136,23 @@
     atualizarDataHora();
     setInterval(atualizarDataHora, 1000);
 
-    function limparNomeEquipe(nome) {
-        if (!nome) return "Não identificada";
-        let nomeLimpo = nome.replace(/^CANARANA\s*-\s*/i, '');
-        nomeLimpo = nomeLimpo.replace(/^CANARANA-/i, '');
-        nomeLimpo = nomeLimpo.replace(/^OP-/i, 'OP-');
-        return nomeLimpo;
+    function extrairOperador(linhaHtml) {
+        // Tenta extrair o padrão OP-VALDECI, OP-MARCOS, OP-MURILO, etc.
+        const matchOp = linhaHtml.match(/OP-[A-ZÀ-Ú]+/i);
+        if (matchOp) {
+            return matchOp[0].toUpperCase();
+        }
+        
+        // Tenta extrair o nome que está no span qtip
+        const matchQtip = linhaHtml.match(/qtip="([^"]*CANARANA[^"]*)"/i);
+        if (matchQtip) {
+            let nome = matchQtip[1];
+            nome = nome.replace(/^CANARANA\s*-\s*/i, '');
+            nome = nome.replace(/\(\d+\)/g, '').trim();
+            return nome;
+        }
+        
+        return "Não identificado";
     }
 
     function gerarRelatorio(silencioso) {
@@ -153,25 +164,15 @@
 
         dadosRelatorio = [];
         
-        let equipe = "Não identificada";
-        const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
-        if (equipeMatch) {
-            equipe = limparNomeEquipe(equipeMatch[1]);
-        }
-        
-        if (equipe === "Não identificada") {
-            const equipeMatch2 = html.match(/CANARANA\s*-\s*(OP-[A-Z]+[^<]*)/i);
-            if (equipeMatch2) {
-                equipe = limparNomeEquipe(equipeMatch2[1]);
-            }
-        }
-        
         const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
         let match;
         
         while ((match = linhaRegex.exec(html)) !== null) {
             const linhaHtml = match[1];
             if (linhaHtml.includes("<th")) continue;
+            
+            // Extrai o operador ESPECÍFICO desta linha
+            const operador = extrairOperador(linhaHtml);
             
             const celulas = [];
             const tdRegex = /<td[^>]*cellindex="(\d+)"[^>]*>(?:<div[^>]*>)*([\s\S]*?)(?:<\/div>)*<\/td>/gi;
@@ -203,7 +204,7 @@
             
             if (solicitacao || logradouro) {
                 dadosRelatorio.push({
-                    equipe: equipe,
+                    equipe: operador,
                     solicitacao: solicitacao,
                     descricao: descricao,
                     dataAbertura: dataAbertura,
@@ -248,7 +249,6 @@
         tbody.innerHTML = "";
         
         for (const item of dadosFiltrados) {
-            // ✅ CORREÇÃO: link do mapa com logradouro + Canarana - MT
             const enderecoMapa = `${item.logradouro}, Canarana - MT`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
             
@@ -506,7 +506,6 @@
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
         
         for (const item of dadosFiltrados) {
-            // ✅ CORREÇÃO: link do mapa no Excel com logradouro + Canarana - MT
             const enderecoMapa = `${item.logradouro}, Canarana - MT`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
             csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
