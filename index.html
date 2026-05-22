@@ -1,176 +1,833 @@
-// Salvar Imagem - CORRIGIDA (faixa azul em cima e sem cortes)
-async function gerarImagem() {
-    if (dadosRelatorio.length === 0) {
-        alert("⚠️ Gere o relatório primeiro!");
-        return;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Águas Canarana - Relatório de OS</title>
+    
+    <!-- Biblioteca apenas para imagem -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #e9ecef;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        /* HEADER - FAIXA AZUL EM CIMA */
+        .header {
+            background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .logo-area img {
+            height: 55px;
+            width: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 5px 12px;
+        }
+        
+        .empresa-nome {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .titulo-relatorio {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .data-hora {
+            color: white;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        
+        .instrucao {
+            background: #e7f1ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #005c8a;
+            border-left: 4px solid #005c8a;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        button {
+            background: #0b5ed7;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 90px;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        
+        .btn-excel { background: #198754; }
+        .btn-pdf { background: #dc3545; }
+        .btn-img { background: #6f42c1; }
+        .btn-limpar-os { background: #fd7e14; }
+        .btn-limpar-codigo { background: #6c757d; }
+        .btn-gerar { background: #005c8a; }
+        
+        /* FILTROS */
+        .filtro {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .filtro input {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 200px;
+            transition: all 0.3s ease;
+        }
+        
+        .filtro input:focus {
+            outline: none;
+            border-color: #005c8a;
+            box-shadow: 0 0 0 3px rgba(0,92,138,0.2);
+        }
+        
+        .filtro input::placeholder {
+            color: #999;
+            font-weight: normal;
+        }
+        
+        .filtro-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+            padding-left: 5px;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 600px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background: #005c8a;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tr:hover {
+            background: #e8f4f8;
+            cursor: pointer;
+        }
+        
+        .map-link {
+            background: #0b5ed7;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-size: 11px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .map-link:hover {
+            background: #005c8a;
+        }
+        
+        .total {
+            font-weight: bold;
+            margin-top: 16px;
+            font-size: 14px;
+            text-align: center;
+            padding: 8px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            background: white;
+            border-radius: 12px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info {
+                display: none !important;
+            }
+            .header {
+                background: #005c8a !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .map-link {
+                text-decoration: none;
+                color: black;
+                background: none;
+                padding: 0;
+            }
+            .footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+            }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow: auto;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            margin: auto;
+            padding: 16px;
+            border-radius: 12px;
+            max-width: 95%;
+            text-align: center;
+        }
+        .modal img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        @media (max-width: 600px) {
+            .empresa-nome { font-size: 1rem; }
+            .titulo-relatorio { font-size: 0.9rem; }
+            .data-hora { font-size: 0.7rem; }
+            .logo-area img { height: 40px; }
+            .footer { font-size: 10px; }
+            .filtro input { font-size: 12px; padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- HEADER - FAIXA AZUL EM CIMA -->
+    <div class="header" id="headerPrincipal">
+        <div class="logo-area">
+            <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
+                 alt="Águas Canarana" 
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22144%22 height=%2272%22%3E%3Crect width=%22144%22 height=%2272%22 fill=%22%23005c8a%22/%3E%3Ctext x=%2210%22 y=%2240%22 fill=%22white%22 font-size=%2214%22%3EÁguas Canarana%3C/text%3E%3C/svg%3E'">
+            <span class="empresa-nome">Águas Canarana</span>
+        </div>
+        <div class="titulo-relatorio">📋 RELATÓRIO DE OS</div>
+        <div class="data-hora" id="dataHoraAtual"></div>
+    </div>
+
+    <div class="card">
+        <div class="instrucao">
+            💡 <strong>Instrução:</strong> Cole aqui o código HTML copiado do sistema 
+            <strong>https://centrosul.waterfy.net/</strong> (Elements) da tela de OS do sistema Waterfy.
+        </div>
+        <textarea id="htmlInput" placeholder="Cole aqui o HTML copiado do F12 (Elements)..."></textarea>
+        
+        <div class="btn-group">
+            <button class="btn-gerar" id="btnGerar">🔍 Gerar Relatório</button>
+            <button class="btn-excel" id="btnExcel">📎 Excel</button>
+            <button class="btn-pdf" id="btnPDF">📄 Salvar PDF</button>
+            <button class="btn-img" id="btnImg">🖼️ Salvar Imagem</button>
+            <button class="btn-limpar-os" id="btnLimparOS">🗑️ Limpar OS</button>
+            <button class="btn-limpar-codigo" id="btnLimparCodigo">🧹 Limpar Código</button>
+        </div>
+    </div>
+
+    <div class="card" id="relatorioCard">
+        <div class="filtro">
+            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Equipe... (ex: VALDECI, MARCOS, MURILO)" autocomplete="off">
+            <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro... (ex: SÃO, RIO, TRES)" autocomplete="off">
+        </div>
+        <div class="filtro-info" id="filtroInfo">
+            💡 Digite para filtrar em tempo real
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="tabelaRelatorio">
+                <thead>
+                    <tr>
+                        <th>Equipe</th>
+                        <th>Solicitação</th>
+                        <th>Descrição</th>
+                        <th>Data Abertura</th>
+                        <th>Data Prazo</th>
+                        <th>Logradouro</th>
+                        <th>Nº</th>
+                        <th>Bairro</th>
+                        <th>Cidade</th>
+                        <th>Mapa</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaBody"></tbody>
+            </table>
+        </div>
+        <div id="totalRegistros" class="total"></div>
+    </div>
+    
+    <div class="footer">
+        🚀 Desenvolvido por <strong>Marcos Duarte</strong> | 📞 (62) 98469-6547
+    </div>
+</div>
+
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModal()">&times;</span>
+        <img id="modalImage" src="" alt="Relatório">
+        <p><small>🔽 Clique com botão direito e escolha "Salvar imagem como..."</small></p>
+    </div>
+</div>
+
+<script>
+    let dadosRelatorio = [];
+    
+    // Normaliza texto: remove acentos, minúsculas, trim
+    function normalizar(texto) {
+        if (texto === null || texto === undefined) return "";
+        return texto
+            .toString()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toLowerCase()
+            .trim();
     }
     
-    const btnImg = document.getElementById('btnImg');
-    const textoOriginal = btnImg.textContent;
-    btnImg.textContent = "⏳ Gerando...";
-    btnImg.disabled = true;
-    
-    // Esconde os filtros temporariamente
-    const filtroDiv = document.querySelector('.filtro');
-    const filtroInfoDiv = document.querySelector('.filtro-info');
-    if (filtroDiv) filtroDiv.style.display = 'none';
-    if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
-    
-    // Cria um container TEMPORÁRIO
-    const tempContainer = document.createElement('div');
-    tempContainer.style.backgroundColor = 'white';
-    tempContainer.style.padding = '20px';
-    tempContainer.style.borderRadius = '12px';
-    tempContainer.style.width = 'fit-content';
-    tempContainer.style.minWidth = '100%';
-    
-    // ========== 1. HEADER (faixa azul) CONSTRUÍDO MANUALMENTE ==========
-    const headerClone = document.createElement('div');
-    headerClone.style.background = 'linear-gradient(135deg, #005c8a 0%, #003d5e 100%)';
-    headerClone.style.borderRadius = '12px';
-    headerClone.style.padding = '16px 20px';
-    headerClone.style.marginBottom = '20px';
-    headerClone.style.color = 'white';
-    headerClone.style.display = 'flex';
-    headerClone.style.alignItems = 'center';
-    headerClone.style.justifyContent = 'space-between';
-    headerClone.style.flexWrap = 'wrap';
-    headerClone.style.gap = '15px';
-    
-    // Logo + nome da empresa
-    const logoArea = document.createElement('div');
-    logoArea.style.display = 'flex';
-    logoArea.style.alignItems = 'center';
-    logoArea.style.gap = '15px';
-    
-    const logoImg = document.createElement('div');
-    logoImg.style.background = 'white';
-    logoImg.style.borderRadius = '12px';
-    logoImg.style.padding = '5px 12px';
-    logoImg.style.fontWeight = 'bold';
-    logoImg.style.fontSize = '20px';
-    logoImg.style.color = '#005c8a';
-    logoImg.innerHTML = '💧';
-    logoArea.appendChild(logoImg);
-    
-    const empresaSpan = document.createElement('span');
-    empresaSpan.style.fontSize = '1.3rem';
-    empresaSpan.style.fontWeight = 'bold';
-    empresaSpan.textContent = 'Águas Canarana';
-    logoArea.appendChild(empresaSpan);
-    
-    headerClone.appendChild(logoArea);
-    
-    // Título
-    const tituloDiv = document.createElement('div');
-    tituloDiv.style.background = 'rgba(255,255,255,0.2)';
-    tituloDiv.style.padding = '8px 18px';
-    tituloDiv.style.borderRadius = '40px';
-    tituloDiv.style.fontWeight = 'bold';
-    tituloDiv.style.fontSize = '1.1rem';
-    tituloDiv.textContent = '📋 RELATÓRIO DE OS';
-    headerClone.appendChild(tituloDiv);
-    
-    // Data e hora
-    const dataDiv = document.createElement('div');
-    dataDiv.style.fontSize = '0.85rem';
-    dataDiv.style.background = 'rgba(0,0,0,0.3)';
-    dataDiv.style.padding = '6px 12px';
-    dataDiv.style.borderRadius = '20px';
-    dataDiv.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
-    headerClone.appendChild(dataDiv);
-    
-    tempContainer.appendChild(headerClone);
-    
-    // ========== 2. TABELA (sem sticky) ==========
-    const tabelaOriginal = document.getElementById('tabelaRelatorio');
-    const tabelaClone = tabelaOriginal.cloneNode(true);
-    tabelaClone.style.width = '100%';
-    tabelaClone.style.borderCollapse = 'collapse';
-    tabelaClone.style.fontSize = '12px';
-    
-    // Remove o sticky do cabeçalho da tabela (isso que fazia o header ir para baixo)
-    const thead = tabelaClone.querySelector('thead');
-    if (thead) {
-        thead.style.position = 'relative';
-        const ths = thead.querySelectorAll('th');
-        ths.forEach(th => {
-            th.style.position = 'static';
-            th.style.top = 'auto';
-            th.style.background = '#005c8a';
-            th.style.color = 'white';
-            th.style.border = '1px solid #ddd';
-            th.style.padding = '8px 6px';
-        });
+    function atualizarDataHora() {
+        const agora = new Date();
+        document.getElementById("dataHoraAtual").innerHTML = `📅 ${agora.toLocaleDateString('pt-BR')} | ⏰ ${agora.toLocaleTimeString('pt-BR')}`;
+    }
+    atualizarDataHora();
+    setInterval(atualizarDataHora, 1000);
+
+    function limparNomeEquipe(nome) {
+        if (!nome) return "Não identificada";
+        let nomeLimpo = nome.replace(/^CANARANA\s*-\s*/i, '');
+        nomeLimpo = nomeLimpo.replace(/^CANARANA-/i, '');
+        nomeLimpo = nomeLimpo.replace(/^OP-/i, 'OP-');
+        return nomeLimpo;
+    }
+
+    function gerarRelatorio(silencioso) {
+        const html = document.getElementById("htmlInput").value;
+        if (!html.trim()) {
+            if (!silencioso) alert("⚠️ Cole o HTML do F12 primeiro!");
+            return;
+        }
+
+        const dadosNovos = [];
+        
+        let equipe = "Não identificada";
+        const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
+        if (equipeMatch) {
+            equipe = limparNomeEquipe(equipeMatch[1]);
+        }
+        
+        if (equipe === "Não identificada") {
+            const equipeMatch2 = html.match(/CANARANA\s*-\s*(OP-[A-Z]+[^<]*)/i);
+            if (equipeMatch2) {
+                equipe = limparNomeEquipe(equipeMatch2[1]);
+            }
+        }
+        
+        const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
+        let match;
+        
+        while ((match = linhaRegex.exec(html)) !== null) {
+            const linhaHtml = match[1];
+            if (linhaHtml.includes("<th")) continue;
+            
+            const celulas = [];
+            const tdRegex = /<td[^>]*cellindex="(\d+)"[^>]*>(?:<div[^>]*>)*([\s\S]*?)(?:<\/div>)*<\/td>/gi;
+            let tdMatch;
+            
+            while ((tdMatch = tdRegex.exec(linhaHtml)) !== null) {
+                const cellIndex = parseInt(tdMatch[1]);
+                let conteudo = tdMatch[2];
+                conteudo = conteudo.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+                celulas[cellIndex] = conteudo;
+            }
+            
+            const solicitacao = celulas[3] || "";
+            const descricao = celulas[8] || "";
+            const dataAbertura = celulas[9] || "";
+            const dataPrazo = celulas[11] || "";
+            const logradouro = celulas[18] || "";
+            const numero = celulas[19] || "";
+            const bairro = celulas[20] || "";
+            let cidade = celulas[21] || "Canarana";
+            
+            if (cidade && cidade !== "Canarana") {
+                cidade = cidade.toUpperCase().replace(/-MT$/i, '') + "-MT";
+            } else if (cidade === "Canarana") {
+                cidade = "CANARANA-MT";
+            } else if (cidade && !cidade.includes("-MT")) {
+                cidade = cidade.toUpperCase() + "-MT";
+            }
+            
+            if (solicitacao || logradouro) {
+                dadosNovos.push({
+                    equipe: equipe,
+                    solicitacao: solicitacao,
+                    descricao: descricao,
+                    dataAbertura: dataAbertura,
+                    dataPrazo: dataPrazo,
+                    logradouro: logradouro,
+                    numero: numero,
+                    bairro: bairro,
+                    cidade: cidade
+                });
+            }
+        }
+        
+        if (dadosNovos.length === 0) {
+            if (!silencioso) {
+                alert("❌ Nenhuma OS encontrada. Verifique o HTML copiado.");
+            }
+            return;
+        }
+        
+        dadosRelatorio = dadosNovos;
+        if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
+        
+        renderizarTabela();
     }
     
-    // Ajusta células do corpo
-    const tds = tabelaClone.querySelectorAll('td');
-    tds.forEach(td => {
-        td.style.border = '1px solid #ddd';
-        td.style.padding = '8px 6px';
-    });
-    
-    tempContainer.appendChild(tabelaClone);
-    
-    // ========== 3. TOTAL ==========
-    const totalOriginal = document.getElementById('totalRegistros');
-    if (totalOriginal && totalOriginal.innerHTML) {
-        const totalClone = document.createElement('div');
-        totalClone.style.marginTop = '16px';
-        totalClone.style.padding = '8px';
-        totalClone.style.backgroundColor = '#e9ecef';
-        totalClone.style.borderRadius = '8px';
-        totalClone.style.textAlign = 'center';
-        totalClone.style.fontWeight = 'bold';
-        totalClone.innerHTML = totalOriginal.innerHTML;
-        tempContainer.appendChild(totalClone);
-    }
-    
-    // ========== 4. RODAPÉ ==========
-    const footerClone = document.createElement('div');
-    footerClone.style.textAlign = 'center';
-    footerClone.style.padding = '12px';
-    footerClone.style.marginTop = '20px';
-    footerClone.style.fontSize = '11px';
-    footerClone.style.color = '#6c757d';
-    footerClone.style.borderTop = '1px solid #dee2e6';
-    footerClone.innerHTML = '🚀 Desenvolvido por <strong>Marcos Duarte</strong> | 📞 (62) 98469-6547';
-    tempContainer.appendChild(footerClone);
-    
-    // Adiciona ao body para capturar
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.top = '-9999px';
-    tempContainer.style.left = '-9999px';
-    document.body.appendChild(tempContainer);
-    
-    // Pequeno delay para garantir o render
-    await new Promise(r => setTimeout(r, 100));
-    
-    try {
-        const canvas = await html2canvas(tempContainer, {
-            scale: 2.5,
-            backgroundColor: '#ffffff',
-            logging: false,
-            useCORS: true,
-            windowWidth: tempContainer.scrollWidth,
-            windowHeight: tempContainer.scrollHeight
+    function renderizarTabela() {
+        const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
+        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
+        
+        const filtrados = dadosRelatorio.filter(item => {
+            const matchEquipe = filtroEquipe === "" || normalizar(item.equipe).includes(filtroEquipe);
+            const matchLogradouro = filtroLogradouro === "" || normalizar(item.logradouro).includes(filtroLogradouro);
+            return matchEquipe && matchLogradouro;
         });
         
-        const imageData = canvas.toDataURL('image/png');
-        const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImage');
-        modalImg.src = imageData;
-        modal.style.display = 'block';
+        const tbody = document.getElementById("tabelaBody");
+        tbody.innerHTML = "";
         
-    } catch (error) {
-        console.error('Erro:', error);
-        alert('Erro ao gerar imagem: ' + error.message);
-    } finally {
-        document.body.removeChild(tempContainer);
-        if (filtroDiv) filtroDiv.style.display = '';
-        if (filtroInfoDiv) filtroInfoDiv.style.display = '';
-        btnImg.textContent = textoOriginal;
-        btnImg.disabled = false;
+        for (const item of filtrados) {
+            const enderecoCompleto = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`.trim();
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoCompleto)}`;
+            
+            const row = tbody.insertRow();
+            row.insertCell(0).textContent = item.equipe;
+            row.insertCell(1).textContent = item.solicitacao;
+            row.insertCell(2).textContent = item.descricao;
+            row.insertCell(3).textContent = item.dataAbertura;
+            row.insertCell(4).textContent = item.dataPrazo;
+            row.insertCell(5).textContent = item.logradouro;
+            row.insertCell(6).textContent = item.numero;
+            row.insertCell(7).textContent = item.bairro;
+            row.insertCell(8).textContent = item.cidade;
+            
+            const cellMap = row.insertCell(9);
+            const link = document.createElement("a");
+            link.href = mapsUrl;
+            link.target = "_blank";
+            link.textContent = "🗺️ Abrir Mapa";
+            link.className = "map-link";
+            cellMap.appendChild(link);
+        }
+        
+        const totalFiltrados = filtrados.length;
+        const totalGeral = dadosRelatorio.length;
+        
+        let mensagem = `📊 Total de OS: ${totalFiltrados}`;
+        if (totalFiltrados !== totalGeral) {
+            mensagem += ` (filtrado de ${totalGeral} total)`;
+        }
+        document.getElementById("totalRegistros").innerHTML = mensagem;
+        
+        const infoDiv = document.getElementById("filtroInfo");
+        if (filtroEquipe || filtroLogradouro) {
+            infoDiv.innerHTML = `🎯 Filtro ativo: ${totalFiltrados} OS(s) exibida(s) de ${totalGeral} total`;
+        } else {
+            infoDiv.innerHTML = `💡 Digite para filtrar em tempo real - ${totalGeral} OS(s) no total`;
+        }
     }
-}
+    
+    function gerarPDF() {
+        if (dadosRelatorio.length === 0) {
+            alert("⚠️ Gere o relatório primeiro!");
+            return;
+        }
+        
+        const filtroDiv = document.querySelector('.filtro');
+        const filtroInfoDiv = document.querySelector('.filtro-info');
+        const botoesCard = document.querySelector('.card:first-of-type');
+        
+        if (filtroDiv) filtroDiv.style.display = 'none';
+        if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
+        if (botoesCard) botoesCard.style.display = 'none';
+        
+        alert("📄 Clique em 'Salvar como PDF' na janela que vai abrir");
+        
+        window.print();
+        
+        setTimeout(() => {
+            if (filtroDiv) filtroDiv.style.display = '';
+            if (filtroInfoDiv) filtroInfoDiv.style.display = '';
+            if (botoesCard) botoesCard.style.display = '';
+        }, 500);
+    }
+    
+    // Salvar Imagem - CORRIGIDA (faixa azul em cima)
+    async function gerarImagem() {
+        if (dadosRelatorio.length === 0) {
+            alert("⚠️ Gere o relatório primeiro!");
+            return;
+        }
+        
+        const btnImg = document.getElementById('btnImg');
+        const textoOriginal = btnImg.textContent;
+        btnImg.textContent = "⏳ Gerando...";
+        btnImg.disabled = true;
+        
+        const filtroDiv = document.querySelector('.filtro');
+        const filtroInfoDiv = document.querySelector('.filtro-info');
+        if (filtroDiv) filtroDiv.style.display = 'none';
+        if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
+        
+        const tempContainer = document.createElement('div');
+        tempContainer.style.backgroundColor = 'white';
+        tempContainer.style.padding = '20px';
+        tempContainer.style.borderRadius = '12px';
+        tempContainer.style.width = 'fit-content';
+        tempContainer.style.minWidth = '100%';
+        
+        // ========== 1. HEADER CONSTRUÍDO MANUALMENTE ==========
+        const headerClone = document.createElement('div');
+        headerClone.style.background = 'linear-gradient(135deg, #005c8a 0%, #003d5e 100%)';
+        headerClone.style.borderRadius = '12px';
+        headerClone.style.padding = '16px 20px';
+        headerClone.style.marginBottom = '20px';
+        headerClone.style.color = 'white';
+        headerClone.style.display = 'flex';
+        headerClone.style.alignItems = 'center';
+        headerClone.style.justifyContent = 'space-between';
+        headerClone.style.flexWrap = 'wrap';
+        headerClone.style.gap = '15px';
+        
+        // Logo + nome
+        const logoArea = document.createElement('div');
+        logoArea.style.display = 'flex';
+        logoArea.style.alignItems = 'center';
+        logoArea.style.gap = '15px';
+        
+        const logoImg = document.createElement('div');
+        logoImg.style.background = 'white';
+        logoImg.style.borderRadius = '12px';
+        logoImg.style.padding = '5px 12px';
+        logoImg.style.fontWeight = 'bold';
+        logoImg.style.fontSize = '20px';
+        logoImg.style.color = '#005c8a';
+        logoImg.innerHTML = '💧';
+        logoArea.appendChild(logoImg);
+        
+        const empresaSpan = document.createElement('span');
+        empresaSpan.style.fontSize = '1.3rem';
+        empresaSpan.style.fontWeight = 'bold';
+        empresaSpan.textContent = 'Águas Canarana';
+        logoArea.appendChild(empresaSpan);
+        
+        headerClone.appendChild(logoArea);
+        
+        // Título
+        const tituloDiv = document.createElement('div');
+        tituloDiv.style.background = 'rgba(255,255,255,0.2)';
+        tituloDiv.style.padding = '8px 18px';
+        tituloDiv.style.borderRadius = '40px';
+        tituloDiv.style.fontWeight = 'bold';
+        tituloDiv.style.fontSize = '1.1rem';
+        tituloDiv.textContent = '📋 RELATÓRIO DE OS';
+        headerClone.appendChild(tituloDiv);
+        
+        // Data e hora
+        const dataDiv = document.createElement('div');
+        dataDiv.style.fontSize = '0.85rem';
+        dataDiv.style.background = 'rgba(0,0,0,0.3)';
+        dataDiv.style.padding = '6px 12px';
+        dataDiv.style.borderRadius = '20px';
+        dataDiv.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
+        headerClone.appendChild(dataDiv);
+        
+        tempContainer.appendChild(headerClone);
+        
+        // ========== 2. TABELA ==========
+        const tabelaOriginal = document.getElementById('tabelaRelatorio');
+        const tabelaClone = tabelaOriginal.cloneNode(true);
+        tabelaClone.style.width = '100%';
+        tabelaClone.style.borderCollapse = 'collapse';
+        tabelaClone.style.fontSize = '12px';
+        
+        // Remove sticky do cabeçalho
+        const thead = tabelaClone.querySelector('thead');
+        if (thead) {
+            thead.style.position = 'relative';
+            const ths = thead.querySelectorAll('th');
+            ths.forEach(th => {
+                th.style.position = 'static';
+                th.style.top = 'auto';
+                th.style.background = '#005c8a';
+                th.style.color = 'white';
+                th.style.border = '1px solid #ddd';
+                th.style.padding = '8px 6px';
+            });
+        }
+        
+        const tds = tabelaClone.querySelectorAll('td');
+        tds.forEach(td => {
+            td.style.border = '1px solid #ddd';
+            td.style.padding = '8px 6px';
+        });
+        
+        tempContainer.appendChild(tabelaClone);
+        
+        // ========== 3. TOTAL ==========
+        const totalOriginal = document.getElementById('totalRegistros');
+        if (totalOriginal && totalOriginal.innerHTML) {
+            const totalClone = document.createElement('div');
+            totalClone.style.marginTop = '16px';
+            totalClone.style.padding = '8px';
+            totalClone.style.backgroundColor = '#e9ecef';
+            totalClone.style.borderRadius = '8px';
+            totalClone.style.textAlign = 'center';
+            totalClone.style.fontWeight = 'bold';
+            totalClone.innerHTML = totalOriginal.innerHTML;
+            tempContainer.appendChild(totalClone);
+        }
+        
+        // ========== 4. RODAPÉ ==========
+        const footerClone = document.createElement('div');
+        footerClone.style.textAlign = 'center';
+        footerClone.style.padding = '12px';
+        footerClone.style.marginTop = '20px';
+        footerClone.style.fontSize = '11px';
+        footerClone.style.color = '#6c757d';
+        footerClone.style.borderTop = '1px solid #dee2e6';
+        footerClone.innerHTML = '🚀 Desenvolvido por <strong>Marcos Duarte</strong> | 📞 (62) 98469-6547';
+        tempContainer.appendChild(footerClone);
+        
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.top = '-9999px';
+        tempContainer.style.left = '-9999px';
+        document.body.appendChild(tempContainer);
+        
+        await new Promise(r => setTimeout(r, 100));
+        
+        try {
+            const canvas = await html2canvas(tempContainer, {
+                scale: 2.5,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true,
+                windowWidth: tempContainer.scrollWidth,
+                windowHeight: tempContainer.scrollHeight
+            });
+            
+            const imageData = canvas.toDataURL('image/png');
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = imageData;
+            modal.style.display = 'block';
+            
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao gerar imagem: ' + error.message);
+        } finally {
+            document.body.removeChild(tempContainer);
+            if (filtroDiv) filtroDiv.style.display = '';
+            if (filtroInfoDiv) filtroInfoDiv.style.display = '';
+            btnImg.textContent = textoOriginal;
+            btnImg.disabled = false;
+        }
+    }
+    
+    function exportarExcel() {
+        if (dadosRelatorio.length === 0) {
+            alert("⚠️ Gere o relatório primeiro!");
+            return;
+        }
+        
+        const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
+        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
+        
+        const filtrados = dadosRelatorio.filter(item => {
+            const matchEquipe = filtroEquipe === "" || normalizar(item.equipe).includes(filtroEquipe);
+            const matchLogradouro = filtroLogradouro === "" || normalizar(item.logradouro).includes(filtroLogradouro);
+            return matchEquipe && matchLogradouro;
+        });
+        
+        let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
+        
+        for (const item of filtrados) {
+            const endereco = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`;
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+            csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
+        }
+        
+        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute("download", `aguas_canarana_os_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+    
+    function limparOS() {
+        document.getElementById("tabelaBody").innerHTML = "";
+        dadosRelatorio = [];
+        document.getElementById("totalRegistros").innerHTML = "";
+        document.getElementById("filtroEquipe").value = "";
+        document.getElementById("filtroLogradouro").value = "";
+        document.getElementById("filtroInfo").innerHTML = "💡 Digite para filtrar em tempo real";
+        alert("✅ OS limpas!");
+    }
+    
+    function limparCodigo() {
+        document.getElementById("htmlInput").value = "";
+        alert("✅ Código limpo!");
+    }
+    
+    function fecharModal() {
+        document.getElementById("imageModal").style.display = "none";
+    }
+    
+    function filtrarAoDigitar() {
+        if (dadosRelatorio.length === 0) {
+            const caixa = document.getElementById("htmlInput");
+            const temCodigo = caixa && caixa.value.trim() !== "";
+            if (temCodigo) {
+                gerarRelatorio(true);
+                return;
+            }
+        }
+        renderizarTabela();
+    }
+    
+    // Eventos
+    document.getElementById("btnGerar").addEventListener("click", () => gerarRelatorio(false));
+    document.getElementById("btnExcel").addEventListener("click", exportarExcel);
+    document.getElementById("btnPDF").addEventListener("click", gerarPDF);
+    document.getElementById("btnImg").addEventListener("click", gerarImagem);
+    document.getElementById("btnLimparOS").addEventListener("click", limparOS);
+    document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
+    document.getElementById("filtroEquipe").addEventListener("input", filtrarAoDigitar);
+    document.getElementById("filtroLogradouro").addEventListener("input", filtrarAoDigitar);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
+</script>
+</body>
+</html>
