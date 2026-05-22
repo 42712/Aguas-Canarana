@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Águas Canarana - Relatório de OS</title>
     
-    <!-- Biblioteca apenas para imagem -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     
     <style>
@@ -211,7 +210,6 @@
         
         tr:hover {
             background: #e8f4f8;
-            cursor: pointer;
         }
         
         .map-link {
@@ -397,7 +395,9 @@
 
 <script>
     let dadosRelatorio = [];
+    let dadosExibidos = []; // Dados atualmente exibidos na tela
     let timeoutFiltro = null;
+    let ultimoFiltro = ""; // Armazena o último filtro aplicado
     
     function normalizar(texto) {
         if (texto === null || texto === undefined) return "";
@@ -504,28 +504,60 @@
         }
         
         dadosRelatorio = dadosNovos;
+        dadosExibidos = [...dadosRelatorio];
         if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
         
         renderizarTabela();
     }
     
-    function renderizarTabela() {
-        const filtro = normalizar(document.getElementById("filtroGeral").value);
+    function aplicarFiltro() {
+        const filtroDigitado = document.getElementById("filtroGeral").value;
+        const filtro = normalizar(filtroDigitado);
         
-        // ✅ CORREÇÃO: Só filtra se tiver 3 letras ou mais
-        let filtrados = dadosRelatorio;
+        // SÓ APLICA O FILTRO SE TIVER 3 LETRAS OU MAIS
         if (filtro.length >= 3) {
-            filtrados = dadosRelatorio.filter(item => {
+            ultimoFiltro = filtro;
+            dadosExibidos = dadosRelatorio.filter(item => {
                 const buscaOperador = normalizar(item.equipe).includes(filtro);
                 const buscaLogradouro = normalizar(item.logradouro).includes(filtro);
                 return buscaOperador || buscaLogradouro;
             });
+        } else {
+            // Se tem menos de 3 letras, mostra TODOS os dados
+            if (filtro.length < 3) {
+                dadosExibidos = [...dadosRelatorio];
+                ultimoFiltro = "";
+            }
         }
         
+        renderizarTabela();
+        
+        // Atualiza a mensagem de info
+        const infoDiv = document.getElementById("filtroInfo");
+        const valorDigitado = document.getElementById("filtroGeral").value;
+        const totalGeral = dadosRelatorio.length;
+        const totalFiltrados = dadosExibidos.length;
+        
+        if (filtro.length >= 3) {
+            if (totalFiltrados === 0) {
+                infoDiv.innerHTML = `🔍 Nenhum resultado encontrado para "${valorDigitado}" - Tente outro termo`;
+            } else if (totalFiltrados !== totalGeral) {
+                infoDiv.innerHTML = `🎯 Filtro ativo: "${valorDigitado}" → ${totalFiltrados} OS(s) encontradas (Operador ou Logradouro)`;
+            } else {
+                infoDiv.innerHTML = `🔍 "${valorDigitado}" encontrado em todas as ${totalGeral} OS(s)`;
+            }
+        } else if (filtro.length > 0 && filtro.length < 3) {
+            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtro.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
+        } else {
+            infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total`;
+        }
+    }
+    
+    function renderizarTabela() {
         const tbody = document.getElementById("tabelaBody");
         tbody.innerHTML = "";
         
-        for (const item of filtrados) {
+        for (const item of dadosExibidos) {
             const enderecoCompleto = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoCompleto)}`;
             
@@ -549,37 +581,20 @@
             cellMap.appendChild(link);
         }
         
-        const totalFiltrados = filtrados.length;
+        const totalFiltrados = dadosExibidos.length;
         const totalGeral = dadosRelatorio.length;
         
         let mensagem = `📊 Total de OS: ${totalFiltrados}`;
-        if (filtro.length >= 3 && totalFiltrados !== totalGeral) {
+        if (totalFiltrados !== totalGeral) {
             mensagem += ` (filtrado de ${totalGeral} total)`;
         }
         document.getElementById("totalRegistros").innerHTML = mensagem;
-        
-        const infoDiv = document.getElementById("filtroInfo");
-        const valorDigitado = document.getElementById("filtroGeral").value;
-        
-        if (filtro.length >= 3) {
-            if (totalFiltrados === 0) {
-                infoDiv.innerHTML = `🔍 Nenhum resultado encontrado para "${valorDigitado}" - Tente outro termo`;
-            } else if (totalFiltrados !== totalGeral) {
-                infoDiv.innerHTML = `🎯 Filtro ativo: "${valorDigitado}" → ${totalFiltrados} OS(s) encontradas (Operador ou Logradouro)`;
-            } else {
-                infoDiv.innerHTML = `🔍 "${valorDigitado}" encontrado em todas as ${totalGeral} OS(s)`;
-            }
-        } else if (filtro.length > 0 && filtro.length < 3) {
-            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtro.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
-        } else {
-            infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total`;
-        }
     }
     
-    function aplicarFiltro() {
+    function aoDigitarFiltro() {
         if (timeoutFiltro) clearTimeout(timeoutFiltro);
         timeoutFiltro = setTimeout(() => {
-            renderizarTabela();
+            aplicarFiltro();
         }, 300);
     }
     
@@ -774,20 +789,9 @@
             return;
         }
         
-        const filtro = normalizar(document.getElementById("filtroGeral").value);
-        
-        let filtrados = dadosRelatorio;
-        if (filtro.length >= 3) {
-            filtrados = dadosRelatorio.filter(item => {
-                const buscaOperador = normalizar(item.equipe).includes(filtro);
-                const buscaLogradouro = normalizar(item.logradouro).includes(filtro);
-                return buscaOperador || buscaLogradouro;
-            });
-        }
-        
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
         
-        for (const item of filtrados) {
+        for (const item of dadosExibidos) {
             const endereco = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`;
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
             csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
@@ -807,6 +811,7 @@
     function limparOS() {
         document.getElementById("tabelaBody").innerHTML = "";
         dadosRelatorio = [];
+        dadosExibidos = [];
         document.getElementById("totalRegistros").innerHTML = "";
         document.getElementById("filtroGeral").value = "";
         document.getElementById("filtroInfo").innerHTML = "💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras)";
@@ -822,25 +827,13 @@
         document.getElementById("imageModal").style.display = "none";
     }
     
-    function filtrarAoDigitar() {
-        if (dadosRelatorio.length === 0) {
-            const caixa = document.getElementById("htmlInput");
-            const temCodigo = caixa && caixa.value.trim() !== "";
-            if (temCodigo) {
-                gerarRelatorio(true);
-                return;
-            }
-        }
-        aplicarFiltro();
-    }
-    
     document.getElementById("btnGerar").addEventListener("click", () => gerarRelatorio(false));
     document.getElementById("btnExcel").addEventListener("click", exportarExcel);
     document.getElementById("btnPDF").addEventListener("click", gerarPDF);
     document.getElementById("btnImg").addEventListener("click", gerarImagem);
     document.getElementById("btnLimparOS").addEventListener("click", limparOS);
     document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
-    document.getElementById("filtroGeral").addEventListener("input", filtrarAoDigitar);
+    document.getElementById("filtroGeral").addEventListener("input", aoDigitarFiltro);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
 </script>
 </body>
