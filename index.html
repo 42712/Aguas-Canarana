@@ -8,306 +8,62 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     
     <style>
-        * {
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            padding: 16px;
-            background: #e9ecef;
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 16px; background: #e9ecef; }
+        .container { max-width: 100%; margin: 0 auto; }
         .header {
             background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
-            border-radius: 16px;
-            padding: 16px 20px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 16px; padding: 16px 20px; margin-bottom: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .logo-area img {
-            height: 55px;
-            width: auto;
-            background: white;
-            border-radius: 12px;
-            padding: 5px 12px;
-        }
-        
-        .empresa-nome {
-            color: white;
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
-        
-        .titulo-relatorio {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 18px;
-            border-radius: 40px;
-            color: white;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
-        
-        .data-hora {
-            color: white;
-            font-size: 0.85rem;
-            background: rgba(0,0,0,0.3);
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        
-        textarea {
-            width: 100%;
-            height: 180px;
-            padding: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            resize: vertical;
-        }
-        
-        .instrucao {
-            background: #e7f1ff;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 13px;
-            color: #005c8a;
-            border-left: 4px solid #005c8a;
-        }
-        
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        
-        button {
-            background: #0b5ed7;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            font-size: 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            flex: 1;
-            min-width: 90px;
-            transition: 0.2s;
-            font-weight: bold;
-        }
-        
+        .logo-area { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .logo-area img { height: 55px; width: auto; background: white; border-radius: 12px; padding: 5px 12px; }
+        .empresa-nome { color: white; font-size: 1.3rem; font-weight: bold; }
+        .titulo-relatorio { background: rgba(255,255,255,0.2); padding: 8px 18px; border-radius: 40px; color: white; font-weight: bold; font-size: 1.1rem; }
+        .data-hora { color: white; font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 6px 12px; border-radius: 20px; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 16px; }
+        textarea { width: 100%; height: 180px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid #ccc; border-radius: 8px; resize: vertical; }
+        .instrucao { background: #e7f1ff; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; color: #005c8a; border-left: 4px solid #005c8a; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+        button { background: #0b5ed7; color: white; border: none; padding: 10px 16px; font-size: 14px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 90px; transition: 0.2s; font-weight: bold; }
         .btn-excel { background: #198754; }
         .btn-pdf { background: #dc3545; }
         .btn-img { background: #6f42c1; }
         .btn-limpar-os { background: #fd7e14; }
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
-        
-        .filtro {
-            margin-bottom: 16px;
-            display: flex;
-            flex-direction: row;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        
-        .filtro label {
-            font-weight: bold;
-            color: #005c8a;
-            background: #e7f1ff;
-            padding: 8px 15px;
-            border-radius: 8px;
-        }
-        
-        .filtro input {
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 14px;
-            flex: 1;
-            min-width: 250px;
-            transition: all 0.3s ease;
-        }
-        
-        .filtro input:focus {
-            outline: none;
-            border-color: #005c8a;
-            box-shadow: 0 0 0 3px rgba(0,92,138,0.2);
-        }
-        
-        .filtro input::placeholder {
-            color: #999;
-            font-weight: normal;
-        }
-        
-        .filtro-info {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 5px;
-            padding-left: 5px;
-        }
-        
-        .table-wrapper {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-            min-width: 600px;
-        }
-        
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px 6px;
-            text-align: left;
-            vertical-align: top;
-        }
-        
-        th {
-            background: #005c8a;
-            color: white;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-        }
-        
-        tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        
-        tr:hover {
-            background: #e8f4f8;
-        }
-        
-        .map-link {
-            background: #0b5ed7;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 16px;
-            text-decoration: none;
-            font-size: 11px;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        
-        .map-link:hover {
-            background: #005c8a;
-        }
-        
-        .total {
-            font-weight: bold;
-            margin-top: 16px;
-            font-size: 14px;
-            text-align: center;
-            padding: 8px;
-            background: #e9ecef;
-            border-radius: 8px;
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 12px;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #6c757d;
-            border-top: 1px solid #dee2e6;
-            background: white;
-            border-radius: 12px;
-        }
-        
+        .filtro { margin-bottom: 16px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .filtro label { font-weight: bold; color: #005c8a; background: #e7f1ff; padding: 8px 15px; border-radius: 8px; }
+        .filtro input { padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; flex: 1; min-width: 250px; transition: all 0.3s ease; }
+        .filtro input:focus { outline: none; border-color: #005c8a; box-shadow: 0 0 0 3px rgba(0,92,138,0.2); }
+        .filtro input::placeholder { color: #999; font-weight: normal; }
+        .filtro-info { font-size: 12px; color: #6c757d; margin-top: 5px; padding-left: 5px; }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
+        th, td { border: 1px solid #ddd; padding: 8px 6px; text-align: left; vertical-align: top; }
+        th { background: #005c8a; color: white; font-weight: 600; position: sticky; top: 0; }
+        tr:nth-child(even) { background: #f8f9fa; }
+        tr:hover { background: #e8f4f8; }
+        .map-link { background: #0b5ed7; color: white; padding: 4px 8px; border-radius: 16px; text-decoration: none; font-size: 11px; display: inline-block; white-space: nowrap; }
+        .map-link:hover { background: #005c8a; }
+        .total { font-weight: bold; margin-top: 16px; font-size: 14px; text-align: center; padding: 8px; background: #e9ecef; border-radius: 8px; }
+        .footer { text-align: center; padding: 12px; margin-top: 20px; font-size: 12px; color: #6c757d; border-top: 1px solid #dee2e6; background: white; border-radius: 12px; }
+
+        /* BADGE de debug para mostrar o que foi encontrado */
+        .badge-equipe { display: inline-block; background: #e7f1ff; color: #005c8a; border-radius: 6px; padding: 2px 6px; font-size: 10px; margin-top: 2px; }
+
         @media print {
-            body {
-                background: white;
-                padding: 0;
-                margin: 0;
-            }
-            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info {
-                display: none !important;
-            }
-            .header {
-                background: #005c8a !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .map-link {
-                text-decoration: none;
-                color: black;
-                background: none;
-                padding: 0;
-            }
-            .footer {
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-            }
+            body { background: white; padding: 0; margin: 0; }
+            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info { display: none !important; }
+            .header { background: #005c8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .map-link { text-decoration: none; color: black; background: none; padding: 0; }
+            .footer { position: fixed; bottom: 0; width: 100%; }
         }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-            overflow: auto;
-            padding: 20px;
-        }
-        .modal-content {
-            background: white;
-            margin: auto;
-            padding: 16px;
-            border-radius: 12px;
-            max-width: 95%;
-            text-align: center;
-        }
-        .modal img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-        }
-        .close {
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #333;
-        }
-        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow: auto; padding: 20px; }
+        .modal-content { background: white; margin: auto; padding: 16px; border-radius: 12px; max-width: 95%; text-align: center; }
+        .modal img { max-width: 100%; height: auto; border-radius: 8px; }
+        .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #333; }
         @media (max-width: 600px) {
             .empresa-nome { font-size: 1rem; }
             .titulo-relatorio { font-size: 0.9rem; }
@@ -362,7 +118,7 @@
             <table id="tabelaRelatorio">
                 <thead>
                     <tr>
-                        <th>Equipe</th>
+                        <th>Equipe / Operador</th>
                         <th>Solicitação</th>
                         <th>Descrição</th>
                         <th>Data Abertura</th>
@@ -375,7 +131,7 @@
                     </tr>
                 </thead>
                 <tbody id="tabelaBody"></tbody>
-            </tr>
+            </table>
         </div>
         <div id="totalRegistros" class="total"></div>
     </div>
@@ -403,12 +159,37 @@
     atualizarDataHora();
     setInterval(atualizarDataHora, 1000);
 
+    // ─── NORMALIZAÇÃO: remove acentos para busca mais tolerante ───────────────
+    function normalizar(str) {
+        if (!str) return "";
+        return str
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")  // remove acentos
+            .trim();
+    }
+
     function limparNomeEquipe(nome) {
-        if (!nome) return "Não identificada";
-        let nomeLimpo = nome.replace(/^CANARANA\s*-\s*/i, '');
-        nomeLimpo = nomeLimpo.replace(/^CANARANA-/i, '');
-        nomeLimpo = nomeLimpo.replace(/^OP-/i, 'OP-');
-        return nomeLimpo;
+        if (!nome) return "";
+        let n = nome.replace(/^CANARANA\s*-\s*/i, '').trim();
+        return n;
+    }
+
+    // ─── EXTRAÇÃO DE TODAS AS EQUIPES/OPERADORES DO HTML ─────────────────────
+    // Captura TODOS os qtip com CANARANA, não apenas o primeiro
+    function extrairEquipes(html) {
+        const equipes = new Set();
+        const re = /qtip="([^"]*CANARANA[^"]*)"/gi;
+        let m;
+        while ((m = re.exec(html)) !== null) {
+            equipes.add(limparNomeEquipe(m[1]));
+        }
+        // Também tenta padrão "OP-XXXXX"
+        const re2 = /CANARANA\s*-\s*(OP-[A-Z0-9\-]+)/gi;
+        while ((m = re2.exec(html)) !== null) {
+            equipes.add(limparNomeEquipe(m[1]));
+        }
+        return [...equipes];
     }
 
     function gerarRelatorio(silencioso) {
@@ -419,109 +200,135 @@
         }
 
         dadosRelatorio = [];
-        
-        let equipe = "Não identificada";
-        const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
-        if (equipeMatch) {
-            equipe = limparNomeEquipe(equipeMatch[1]);
-        }
-        
-        if (equipe === "Não identificada") {
-            const equipeMatch2 = html.match(/CANARANA\s*-\s*(OP-[A-Z]+[^<]*)/i);
-            if (equipeMatch2) {
-                equipe = limparNomeEquipe(equipeMatch2[1]);
-            }
-        }
-        
-        const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
+
+        // ── 1. Extrai lista de equipes disponíveis no HTML ──────────────────
+        const equipesDisponiveis = extrairEquipes(html);
+
+        // ── 2. Processa cada linha <tr> ─────────────────────────────────────
+        const linhaRegex = /<tr[^>]*class="[^"]*I2HUBSB-ab-l[^"]*"[^>]*>([\s\S]*?)<\/tr>/gi;
         let match;
-        
+
         while ((match = linhaRegex.exec(html)) !== null) {
             const linhaHtml = match[1];
             if (linhaHtml.includes("<th")) continue;
-            
-            const celulas = [];
-            const tdRegex = /<td[^>]*cellindex="(\d+)"[^>]*>(?:<div[^>]*>)*([\s\S]*?)(?:<\/div>)*<\/td>/gi;
+
+            // ── 2a. Monta array de células por cellindex ─────────────────
+            const celulas = {};
+
+            // Regex mais robusta: pega cellindex e o conteúdo interno da <td>
+            const tdRegex = /<td[^>]*\bcellindex="(\d+)"[^>]*>([\s\S]*?)<\/td>/gi;
             let tdMatch;
-            
             while ((tdMatch = tdRegex.exec(linhaHtml)) !== null) {
-                const cellIndex = parseInt(tdMatch[1]);
-                let conteudo = tdMatch[2];
-                conteudo = conteudo.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
-                celulas[cellIndex] = conteudo;
+                const idx = parseInt(tdMatch[1]);
+                // Remove todas as tags HTML e normaliza espaços
+                let conteudo = tdMatch[2]
+                    .replace(/<[^>]+>/g, ' ')
+                    .replace(/&nbsp;/g, ' ')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                celulas[idx] = conteudo;
             }
-            
-            const solicitacao = celulas[3] || "";
-            const descricao = celulas[8] || "";
-            const dataAbertura = celulas[9] || "";
-            const dataPrazo = celulas[11] || "";
-            const logradouro = celulas[18] || "";
-            const numero = celulas[19] || "";
-            const bairro = celulas[20] || "";
-            let cidade = celulas[21] || "Canarana";
-            
-            if (cidade && cidade !== "Canarana") {
-                cidade = cidade.toUpperCase().replace(/-MT$/i, '') + "-MT";
-            } else if (cidade === "Canarana") {
+
+            // ── 2b. Tenta detectar operador DENTRO da linha ──────────────
+            // Procura qtip dentro da própria linha
+            let equipeNaLinha = "";
+            const qtipMatch = linhaHtml.match(/qtip="([^"]*(?:CANARANA|OP-)[^"]*)"/i);
+            if (qtipMatch) {
+                equipeNaLinha = limparNomeEquipe(qtipMatch[1]);
+            }
+            // Se não achou na linha, usa a primeira equipe encontrada no HTML geral
+            if (!equipeNaLinha) {
+                equipeNaLinha = equipesDisponiveis.length > 0 ? equipesDisponiveis[0] : "Não identificada";
+            }
+
+            // ── 2c. Também extrai o texto de células que podem conter nome do operador ──
+            // Células típicas: 0=checkbox, 1=status, 2=equipe(texto), 3=nº OS, ...
+            // Verifica se alguma célula contém "OP-" ou nome de operador
+            for (const [idx, val] of Object.entries(celulas)) {
+                if (/\bOP-[A-Z]/i.test(val) && !equipeNaLinha) {
+                    equipeNaLinha = limparNomeEquipe(val);
+                }
+            }
+
+            // ── 2d. Campos principais ────────────────────────────────────
+            const solicitacao  = celulas[3]  || "";
+            const descricao    = celulas[8]  || "";
+            const dataAbertura = celulas[9]  || "";
+            const dataPrazo    = celulas[11] || "";
+            const logradouro   = celulas[18] || "";
+            const numero       = celulas[19] || "";
+            const bairro       = celulas[20] || "";
+            let   cidade       = celulas[21] || "Canarana";
+
+            // Formata cidade
+            if (cidade.trim().toLowerCase() === "canarana" || !cidade.trim()) {
                 cidade = "CANARANA-MT";
-            } else if (cidade && !cidade.includes("-MT")) {
-                cidade = cidade.toUpperCase() + "-MT";
+            } else if (!cidade.toUpperCase().includes("-MT")) {
+                cidade = cidade.toUpperCase().trim() + "-MT";
+            } else {
+                cidade = cidade.toUpperCase().trim();
             }
-            
+
             if (solicitacao || logradouro) {
                 dadosRelatorio.push({
-                    equipe: equipe,
-                    solicitacao: solicitacao,
-                    descricao: descricao,
-                    dataAbertura: dataAbertura,
-                    dataPrazo: dataPrazo,
-                    logradouro: logradouro,
-                    numero: numero,
-                    bairro: bairro,
-                    cidade: cidade
+                    equipe:        equipeNaLinha,
+                    solicitacao:   solicitacao,
+                    descricao:     descricao,
+                    dataAbertura:  dataAbertura,
+                    dataPrazo:     dataPrazo,
+                    logradouro:    logradouro,
+                    numero:        numero,
+                    bairro:        bairro,
+                    cidade:        cidade
                 });
             }
         }
-        
+
         if (dadosRelatorio.length === 0) {
-            if (!silencioso) {
-                alert("❌ Nenhuma OS encontrada. Verifique o HTML copiado.");
-            }
+            if (!silencioso) alert("❌ Nenhuma OS encontrada. Verifique o HTML copiado.");
             return;
         }
-        
+
         if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
-        
         renderizarTabela();
     }
-    
+
+    // ─── RENDERIZAÇÃO COM FILTRO CORRIGIDO ───────────────────────────────────
     function renderizarTabela() {
         const filtroInput = document.getElementById("filtroGeral").value;
-        const filtro = filtroInput.toLowerCase().trim();
-        
-        let dadosFiltrados = [];
-        
-        // SÓ FILTRA SE TIVER 3 LETRAS OU MAIS
-        if (filtro.length >= 3) {
+        const filtroNorm  = normalizar(filtroInput); // sem acentos, minúsculo
+
+        let dadosFiltrados;
+
+        if (filtroNorm.length >= 3) {
             dadosFiltrados = dadosRelatorio.filter(item => {
-                const buscaOperador = item.equipe.toLowerCase().includes(filtro);
-                const buscaLogradouro = item.logradouro.toLowerCase().includes(filtro);
-                return buscaOperador || buscaLogradouro;
+                // Normaliza os campos antes de comparar
+                const equipeNorm    = normalizar(item.equipe);
+                const logradouroNorm = normalizar(item.logradouro);
+                const bairroNorm    = normalizar(item.bairro);
+                const descricaoNorm = normalizar(item.descricao);
+
+                return equipeNorm.includes(filtroNorm)
+                    || logradouroNorm.includes(filtroNorm)
+                    || bairroNorm.includes(filtroNorm)
+                    || descricaoNorm.includes(filtroNorm);
             });
         } else {
-            // MENOS DE 3 LETRAS: MOSTRA TODOS
             dadosFiltrados = [...dadosRelatorio];
         }
-        
+
         const tbody = document.getElementById("tabelaBody");
         tbody.innerHTML = "";
-        
+
         for (const item of dadosFiltrados) {
             const enderecoCompleto = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoCompleto)}`;
-            
+
             const row = tbody.insertRow();
-            row.insertCell(0).textContent = item.equipe;
+            row.insertCell(0).textContent = item.equipe || "—";
             row.insertCell(1).textContent = item.solicitacao;
             row.insertCell(2).textContent = item.descricao;
             row.insertCell(3).textContent = item.dataAbertura;
@@ -530,7 +337,7 @@
             row.insertCell(6).textContent = item.numero;
             row.insertCell(7).textContent = item.bairro;
             row.insertCell(8).textContent = item.cidade;
-            
+
             const cellMap = row.insertCell(9);
             const link = document.createElement("a");
             link.href = mapsUrl;
@@ -539,215 +346,142 @@
             link.className = "map-link";
             cellMap.appendChild(link);
         }
-        
+
         const totalFiltrados = dadosFiltrados.length;
-        const totalGeral = dadosRelatorio.length;
-        
+        const totalGeral     = dadosRelatorio.length;
+
         let mensagem = `📊 Total de OS: ${totalFiltrados}`;
-        if (filtro.length >= 3 && totalFiltrados !== totalGeral) {
+        if (filtroNorm.length >= 3 && totalFiltrados !== totalGeral) {
             mensagem += ` (filtrado de ${totalGeral} total)`;
         }
         document.getElementById("totalRegistros").innerHTML = mensagem;
-        
+
+        // ── Mensagem de status do filtro ─────────────────────────────────
         const infoDiv = document.getElementById("filtroInfo");
-        if (filtro.length >= 3) {
+        if (filtroNorm.length >= 3) {
             if (totalFiltrados === 0) {
-                infoDiv.innerHTML = `🔍 Nenhum resultado encontrado para "${filtroInput}" - Tente outro termo`;
+                infoDiv.innerHTML = `🔍 Nenhum resultado para "<strong>${filtroInput}</strong>" — tente outro termo`;
             } else if (totalFiltrados !== totalGeral) {
-                infoDiv.innerHTML = `🎯 Filtro ativo: "${filtroInput}" → ${totalFiltrados} OS(s) encontradas`;
+                infoDiv.innerHTML = `🎯 Filtro ativo: "<strong>${filtroInput}</strong>" → ${totalFiltrados} OS(s) encontrada(s)`;
             } else {
-                infoDiv.innerHTML = `🔍 "${filtroInput}" encontrado em todas as ${totalGeral} OS(s)`;
+                infoDiv.innerHTML = `🔍 "<strong>${filtroInput}</strong>" encontrado em todas as ${totalGeral} OS(s)`;
             }
-        } else if (filtro.length > 0 && filtro.length < 3) {
-            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtro.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
+        } else if (filtroNorm.length > 0) {
+            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtroNorm.length} caractere(s) para filtrar — ${totalGeral} OS(s) no total`;
         } else {
-            infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total`;
+            infoDiv.innerHTML = `💡 Pesquise por Operador, Logradouro, Bairro ou Descrição (mínimo 3 letras) — ${totalGeral} OS(s) no total`;
         }
     }
-    
+
+    // ─── DEBOUNCE DO FILTRO ───────────────────────────────────────────────────
     let timeoutFiltro = null;
     function aoDigitar() {
         if (timeoutFiltro) clearTimeout(timeoutFiltro);
         timeoutFiltro = setTimeout(() => {
-            renderizarTabela();
-        }, 300);
+            if (dadosRelatorio.length > 0) renderizarTabela();
+        }, 250);
     }
-    
+
+    // ─── PDF ──────────────────────────────────────────────────────────────────
     function gerarPDF() {
-        if (dadosRelatorio.length === 0) {
-            alert("⚠️ Gere o relatório primeiro!");
-            return;
-        }
-        
+        if (dadosRelatorio.length === 0) { alert("⚠️ Gere o relatório primeiro!"); return; }
         const filtroDiv = document.querySelector('.filtro');
         const filtroInfoDiv = document.querySelector('.filtro-info');
         const botoesCard = document.querySelector('.card:first-of-type');
-        
         if (filtroDiv) filtroDiv.style.display = 'none';
         if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
         if (botoesCard) botoesCard.style.display = 'none';
-        
         alert("📄 Clique em 'Salvar como PDF' na janela que vai abrir");
-        
         window.print();
-        
         setTimeout(() => {
             if (filtroDiv) filtroDiv.style.display = '';
             if (filtroInfoDiv) filtroInfoDiv.style.display = '';
             if (botoesCard) botoesCard.style.display = '';
         }, 500);
     }
-    
+
+    // ─── IMAGEM ───────────────────────────────────────────────────────────────
     async function gerarImagem() {
-        if (dadosRelatorio.length === 0) {
-            alert("⚠️ Gere o relatório primeiro!");
-            return;
-        }
-        
+        if (dadosRelatorio.length === 0) { alert("⚠️ Gere o relatório primeiro!"); return; }
         const btnImg = document.getElementById('btnImg');
         const textoOriginal = btnImg.textContent;
         btnImg.textContent = "⏳ Gerando...";
         btnImg.disabled = true;
-        
         const filtroDiv = document.querySelector('.filtro');
         const filtroInfoDiv = document.querySelector('.filtro-info');
         if (filtroDiv) filtroDiv.style.display = 'none';
         if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
-        
+
         const tempContainer = document.createElement('div');
-        tempContainer.style.backgroundColor = 'white';
-        tempContainer.style.padding = '20px';
-        tempContainer.style.borderRadius = '12px';
-        tempContainer.style.width = 'fit-content';
-        tempContainer.style.minWidth = '100%';
+        tempContainer.style.cssText = 'background:white;padding:20px;border-radius:12px;width:fit-content;min-width:100%;position:absolute;top:-9999px;left:-9999px;';
         
+        // Header
         const headerClone = document.createElement('div');
-        headerClone.style.background = 'linear-gradient(135deg, #005c8a 0%, #003d5e 100%)';
-        headerClone.style.borderRadius = '12px';
-        headerClone.style.padding = '16px 20px';
-        headerClone.style.marginBottom = '20px';
-        headerClone.style.color = 'white';
-        headerClone.style.display = 'flex';
-        headerClone.style.alignItems = 'center';
-        headerClone.style.justifyContent = 'space-between';
-        headerClone.style.flexWrap = 'wrap';
-        headerClone.style.gap = '15px';
-        
+        headerClone.style.cssText = 'background:linear-gradient(135deg,#005c8a 0%,#003d5e 100%);border-radius:12px;padding:16px 20px;margin-bottom:20px;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;';
         const logoArea = document.createElement('div');
-        logoArea.style.display = 'flex';
-        logoArea.style.alignItems = 'center';
-        logoArea.style.gap = '15px';
-        
+        logoArea.style.cssText = 'display:flex;align-items:center;gap:15px;';
         const logoImg = document.createElement('div');
-        logoImg.style.background = 'white';
-        logoImg.style.borderRadius = '12px';
-        logoImg.style.padding = '5px 12px';
-        logoImg.style.fontWeight = 'bold';
-        logoImg.style.fontSize = '20px';
-        logoImg.style.color = '#005c8a';
+        logoImg.style.cssText = 'background:white;border-radius:12px;padding:5px 12px;font-weight:bold;font-size:20px;color:#005c8a;';
         logoImg.innerHTML = '💧';
-        logoArea.appendChild(logoImg);
-        
         const empresaSpan = document.createElement('span');
-        empresaSpan.style.fontSize = '1.3rem';
-        empresaSpan.style.fontWeight = 'bold';
+        empresaSpan.style.cssText = 'font-size:1.3rem;font-weight:bold;';
         empresaSpan.textContent = 'Águas Canarana';
+        logoArea.appendChild(logoImg);
         logoArea.appendChild(empresaSpan);
-        headerClone.appendChild(logoArea);
-        
         const tituloDiv = document.createElement('div');
-        tituloDiv.style.background = 'rgba(255,255,255,0.2)';
-        tituloDiv.style.padding = '8px 18px';
-        tituloDiv.style.borderRadius = '40px';
-        tituloDiv.style.fontWeight = 'bold';
-        tituloDiv.style.fontSize = '1.1rem';
+        tituloDiv.style.cssText = 'background:rgba(255,255,255,0.2);padding:8px 18px;border-radius:40px;font-weight:bold;font-size:1.1rem;';
         tituloDiv.textContent = '📋 RELATÓRIO DE OS';
-        headerClone.appendChild(tituloDiv);
-        
         const dataDiv = document.createElement('div');
-        dataDiv.style.fontSize = '0.85rem';
-        dataDiv.style.background = 'rgba(0,0,0,0.3)';
-        dataDiv.style.padding = '6px 12px';
-        dataDiv.style.borderRadius = '20px';
+        dataDiv.style.cssText = 'font-size:0.85rem;background:rgba(0,0,0,0.3);padding:6px 12px;border-radius:20px;';
         dataDiv.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
+        headerClone.appendChild(logoArea);
+        headerClone.appendChild(tituloDiv);
         headerClone.appendChild(dataDiv);
         tempContainer.appendChild(headerClone);
-        
+
+        // Tabela
         const tabelaOriginal = document.getElementById('tabelaRelatorio');
         const tabelaClone = tabelaOriginal.cloneNode(true);
-        tabelaClone.style.width = '100%';
-        tabelaClone.style.borderCollapse = 'collapse';
-        tabelaClone.style.fontSize = '12px';
-        
+        tabelaClone.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px;';
         const thead = tabelaClone.querySelector('thead');
         if (thead) {
             thead.style.position = 'relative';
-            const ths = thead.querySelectorAll('th');
-            ths.forEach(th => {
-                th.style.position = 'static';
-                th.style.top = 'auto';
-                th.style.background = '#005c8a';
-                th.style.color = 'white';
-                th.style.border = '1px solid #ddd';
-                th.style.padding = '8px 6px';
+            thead.querySelectorAll('th').forEach(th => {
+                th.style.cssText = 'position:static;top:auto;background:#005c8a;color:white;border:1px solid #ddd;padding:8px 6px;';
             });
         }
-        
-        const tds = tabelaClone.querySelectorAll('td');
-        tds.forEach(td => {
-            td.style.border = '1px solid #ddd';
-            td.style.padding = '8px 6px';
+        tabelaClone.querySelectorAll('td').forEach(td => {
+            td.style.cssText = 'border:1px solid #ddd;padding:8px 6px;';
         });
         tempContainer.appendChild(tabelaClone);
-        
+
+        // Total
         const totalOriginal = document.getElementById('totalRegistros');
         if (totalOriginal && totalOriginal.innerHTML) {
             const totalClone = document.createElement('div');
-            totalClone.style.marginTop = '16px';
-            totalClone.style.padding = '8px';
-            totalClone.style.backgroundColor = '#e9ecef';
-            totalClone.style.borderRadius = '8px';
-            totalClone.style.textAlign = 'center';
-            totalClone.style.fontWeight = 'bold';
+            totalClone.style.cssText = 'margin-top:16px;padding:8px;background-color:#e9ecef;border-radius:8px;text-align:center;font-weight:bold;';
             totalClone.innerHTML = totalOriginal.innerHTML;
             tempContainer.appendChild(totalClone);
         }
-        
+
+        // Footer
         const footerClone = document.createElement('div');
-        footerClone.style.textAlign = 'center';
-        footerClone.style.padding = '12px';
-        footerClone.style.marginTop = '20px';
-        footerClone.style.fontSize = '11px';
-        footerClone.style.color = '#6c757d';
-        footerClone.style.borderTop = '1px solid #dee2e6';
+        footerClone.style.cssText = 'text-align:center;padding:12px;margin-top:20px;font-size:11px;color:#6c757d;border-top:1px solid #dee2e6;';
         footerClone.innerHTML = '🚀 Desenvolvido por <strong>Marcos Duarte</strong> | 📞 (62) 98469-6547';
         tempContainer.appendChild(footerClone);
-        
-        tempContainer.style.position = 'absolute';
-        tempContainer.style.top = '-9999px';
-        tempContainer.style.left = '-9999px';
+
         document.body.appendChild(tempContainer);
-        
         await new Promise(r => setTimeout(r, 100));
-        
+
         try {
             const canvas = await html2canvas(tempContainer, {
-                scale: 2.5,
-                backgroundColor: '#ffffff',
-                logging: false,
-                useCORS: true,
-                windowWidth: tempContainer.scrollWidth,
-                windowHeight: tempContainer.scrollHeight
+                scale: 2.5, backgroundColor: '#ffffff', logging: false,
+                useCORS: true, windowWidth: tempContainer.scrollWidth, windowHeight: tempContainer.scrollHeight
             });
-            
             const imageData = canvas.toDataURL('image/png');
-            const modal = document.getElementById('imageModal');
-            const modalImg = document.getElementById('modalImage');
-            modalImg.src = imageData;
-            modal.style.display = 'block';
-            
+            document.getElementById('modalImage').src = imageData;
+            document.getElementById('imageModal').style.display = 'block';
         } catch (error) {
-            console.error('Erro:', error);
             alert('Erro ao gerar imagem: ' + error.message);
         } finally {
             document.body.removeChild(tempContainer);
@@ -757,46 +491,35 @@
             btnImg.disabled = false;
         }
     }
-    
+
+    // ─── EXCEL (CSV) ──────────────────────────────────────────────────────────
     function exportarExcel() {
-        if (dadosRelatorio.length === 0) {
-            alert("⚠️ Gere o relatório primeiro!");
-            return;
-        }
-        
-        const filtroInput = document.getElementById("filtroGeral").value;
-        const filtro = filtroInput.toLowerCase().trim();
-        
-        let dadosFiltrados = [];
-        if (filtro.length >= 3) {
-            dadosFiltrados = dadosRelatorio.filter(item => {
-                const buscaOperador = item.equipe.toLowerCase().includes(filtro);
-                const buscaLogradouro = item.logradouro.toLowerCase().includes(filtro);
-                return buscaOperador || buscaLogradouro;
-            });
-        } else {
-            dadosFiltrados = [...dadosRelatorio];
-        }
-        
+        if (dadosRelatorio.length === 0) { alert("⚠️ Gere o relatório primeiro!"); return; }
+        const filtroNorm = normalizar(document.getElementById("filtroGeral").value);
+        let dadosFiltrados = filtroNorm.length >= 3
+            ? dadosRelatorio.filter(item =>
+                normalizar(item.equipe).includes(filtroNorm) ||
+                normalizar(item.logradouro).includes(filtroNorm) ||
+                normalizar(item.bairro).includes(filtroNorm) ||
+                normalizar(item.descricao).includes(filtroNorm))
+            : [...dadosRelatorio];
+
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
-        
         for (const item of dadosFiltrados) {
             const endereco = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`;
-            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
-            csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
+            const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
+            csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g,'""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
         }
-        
         const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.href = url;
+        link.href = URL.createObjectURL(blob);
         link.setAttribute("download", `aguas_canarana_os_${new Date().toISOString().slice(0,10)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(url);
     }
-    
+
+    // ─── LIMPAR ───────────────────────────────────────────────────────────────
     function limparOS() {
         document.getElementById("tabelaBody").innerHTML = "";
         dadosRelatorio = [];
@@ -805,23 +528,22 @@
         document.getElementById("filtroInfo").innerHTML = "💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras)";
         alert("✅ OS limpas!");
     }
-    
     function limparCodigo() {
         document.getElementById("htmlInput").value = "";
         alert("✅ Código limpo!");
     }
-    
     function fecharModal() {
         document.getElementById("imageModal").style.display = "none";
     }
-    
-    document.getElementById("btnGerar").addEventListener("click", () => gerarRelatorio(false));
-    document.getElementById("btnExcel").addEventListener("click", exportarExcel);
-    document.getElementById("btnPDF").addEventListener("click", gerarPDF);
-    document.getElementById("btnImg").addEventListener("click", gerarImagem);
-    document.getElementById("btnLimparOS").addEventListener("click", limparOS);
-    document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
-    document.getElementById("filtroGeral").addEventListener("input", aoDigitar);
+
+    // ─── EVENTOS ──────────────────────────────────────────────────────────────
+    document.getElementById("btnGerar").addEventListener("click",       () => gerarRelatorio(false));
+    document.getElementById("btnExcel").addEventListener("click",       exportarExcel);
+    document.getElementById("btnPDF").addEventListener("click",         gerarPDF);
+    document.getElementById("btnImg").addEventListener("click",         gerarImagem);
+    document.getElementById("btnLimparOS").addEventListener("click",    limparOS);
+    document.getElementById("btnLimparCodigo").addEventListener("click",limparCodigo);
+    document.getElementById("filtroGeral").addEventListener("input",    aoDigitar);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
 </script>
 </body>
