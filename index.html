@@ -479,10 +479,10 @@
         return nomeLimpo;
     }
 
-    function gerarRelatorio() {
+    function gerarRelatorio(silencioso) {
         const html = document.getElementById("htmlInput").value;
         if (!html.trim()) {
-            alert("⚠️ Cole o HTML do F12 primeiro!");
+            if (!silencioso) alert("⚠️ Cole o HTML do F12 primeiro!");
             return;
         }
 
@@ -557,9 +557,9 @@
         }
         
         if (dadosRelatorio.length === 0) {
-            alert("❌ Nenhuma OS encontrada. Verifique se o HTML copiado contém as linhas da tabela.");
+            if (!silencioso) alert("❌ Nenhuma OS encontrada. Verifique se o HTML copiado contém as linhas da tabela.");
         } else {
-            alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
+            if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
         }
         
         renderizarTabela();
@@ -673,12 +673,38 @@
         tempContainer.style.padding = '20px';
         tempContainer.style.borderRadius = '12px';
         
-        // Clona o HEADER (faixa azul)
-        const headerOriginal = document.getElementById('headerPrincipal');
-        const headerClone = headerOriginal.cloneNode(true);
-        headerClone.style.margin = '0';
-        headerClone.style.marginBottom = '20px';
+        // Cria o HEADER (faixa azul) DO ZERO para garantir a ordem correta na imagem.
+        // O html2canvas embaralha layouts flex ao clonar, por isso montamos manualmente.
+        const headerClone = document.createElement('div');
+        headerClone.style.background = '#005c8a';
         headerClone.style.borderRadius = '12px';
+        headerClone.style.padding = '16px 20px';
+        headerClone.style.marginBottom = '20px';
+        headerClone.style.color = 'white';
+        headerClone.style.textAlign = 'center';
+
+        // Linha 1: nome da empresa
+        const linhaEmpresa = document.createElement('div');
+        linhaEmpresa.style.fontSize = '20px';
+        linhaEmpresa.style.fontWeight = 'bold';
+        linhaEmpresa.style.marginBottom = '6px';
+        linhaEmpresa.textContent = '💧 Águas Canarana';
+        headerClone.appendChild(linhaEmpresa);
+
+        // Linha 2: título do relatório
+        const linhaTitulo = document.createElement('div');
+        linhaTitulo.style.fontSize = '16px';
+        linhaTitulo.style.fontWeight = 'bold';
+        linhaTitulo.style.marginBottom = '6px';
+        linhaTitulo.textContent = '📋 RELATÓRIO DE OS';
+        headerClone.appendChild(linhaTitulo);
+
+        // Linha 3: data e hora
+        const linhaData = document.createElement('div');
+        linhaData.style.fontSize = '13px';
+        linhaData.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
+        headerClone.appendChild(linhaData);
+
         tempContainer.appendChild(headerClone);
         
         // Clona a TABELA
@@ -800,7 +826,7 @@
     }
     
     // Event Listeners
-    document.getElementById("btnGerar").addEventListener("click", gerarRelatorio);
+    document.getElementById("btnGerar").addEventListener("click", function() { gerarRelatorio(false); });
     document.getElementById("btnExcel").addEventListener("click", exportarExcel);
     document.getElementById("btnPDF").addEventListener("click", gerarPDF);
     document.getElementById("btnImg").addEventListener("click", gerarImagem);
@@ -808,8 +834,22 @@
     document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
     
     // FILTROS EM TEMPO REAL - FUNCIONAM INSTANTANEAMENTE
-    document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
-    document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
+    // Se ainda não houver OS gerada mas houver código colado na caixa,
+    // ao digitar no filtro o sistema gera os dados automaticamente (sem avisos)
+    // e em seguida aplica o filtro.
+    function filtrarAoDigitar() {
+        if (dadosRelatorio.length === 0) {
+            const temCodigo = document.getElementById("htmlInput").value.trim() !== "";
+            if (temCodigo) {
+                gerarRelatorio(true); // modo silencioso: gera sem alertas
+                return; // gerarRelatorio já chama renderizarTabela
+            }
+        }
+        renderizarTabela();
+    }
+    
+    document.getElementById("filtroEquipe").addEventListener("input", filtrarAoDigitar);
+    document.getElementById("filtroLogradouro").addEventListener("input", filtrarAoDigitar);
     
     document.addEventListener("keydown", function(e) {
         if (e.key === "Escape") fecharModal();
