@@ -8,9 +8,22 @@
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 16px; background: #e9ecef; }
-        .container { max-width: 100%; margin: 0 auto; }
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 16px;
+            background: #e9ecef;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
         .header {
             background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
             border-radius: 16px;
@@ -23,43 +36,287 @@
             gap: 15px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .logo-area { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .logo-area img { height: 55px; width: auto; background: white; border-radius: 12px; padding: 5px 12px; }
-        .empresa-nome { color: white; font-size: 1.3rem; font-weight: bold; }
-        .titulo-relatorio { background: rgba(255,255,255,0.2); padding: 8px 18px; border-radius: 40px; color: white; font-weight: bold; font-size: 1.1rem; }
-        .data-hora { color: white; font-size: 0.85rem; background: rgba(0,0,0,0.3); padding: 6px 12px; border-radius: 20px; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 16px; margin-bottom: 16px; }
-        textarea { width: 100%; height: 180px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid #ccc; border-radius: 8px; resize: vertical; }
-        .instrucao { background: #e7f1ff; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; color: #005c8a; border-left: 4px solid #005c8a; }
-        .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-        button { background: #0b5ed7; color: white; border: none; padding: 10px 16px; font-size: 14px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 90px; font-weight: bold; }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .logo-area img {
+            height: 55px;
+            width: auto;
+            background: white;
+            border-radius: 12px;
+            padding: 5px 12px;
+        }
+        
+        .empresa-nome {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+        
+        .titulo-relatorio {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .data-hora {
+            color: white;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 180px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+        }
+        
+        .instrucao {
+            background: #e7f1ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #005c8a;
+            border-left: 4px solid #005c8a;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        button {
+            background: #0b5ed7;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            flex: 1;
+            min-width: 90px;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        
         .btn-excel { background: #198754; }
         .btn-pdf { background: #dc3545; }
         .btn-img { background: #6f42c1; }
         .btn-limpar-os { background: #fd7e14; }
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
-        .filtro { margin-bottom: 16px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: center; }
-        .filtro label { font-weight: bold; color: #005c8a; background: #e7f1ff; padding: 8px 15px; border-radius: 8px; }
-        .filtro input { padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; flex: 1; min-width: 250px; }
-        .filtro input:focus { outline: none; border-color: #005c8a; box-shadow: 0 0 0 3px rgba(0,92,138,0.2); }
-        .filtro-info { font-size: 12px; color: #6c757d; margin-top: 5px; padding-left: 5px; }
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
-        th, td { border: 1px solid #ddd; padding: 8px 6px; text-align: left; vertical-align: top; }
-        th { background: #005c8a; color: white; position: sticky; top: 0; }
-        tr:nth-child(even) { background: #f8f9fa; }
-        tr:hover { background: #e8f4f8; }
-        .map-link { background: #0b5ed7; color: white; padding: 4px 8px; border-radius: 16px; text-decoration: none; font-size: 11px; display: inline-block; white-space: nowrap; }
-        .map-link:hover { background: #005c8a; }
-        .total { font-weight: bold; margin-top: 16px; font-size: 14px; text-align: center; padding: 8px; background: #e9ecef; border-radius: 8px; }
-        .footer { text-align: center; padding: 12px; margin-top: 20px; font-size: 12px; color: #6c757d; border-top: 1px solid #dee2e6; background: white; border-radius: 12px; }
-        @media print { body { background: white; padding: 0; margin: 0; } .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info { display: none !important; } .header { background: #005c8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } .map-link { text-decoration: none; color: black; background: none; padding: 0; } .footer { position: fixed; bottom: 0; width: 100%; } }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow: auto; padding: 20px; }
-        .modal-content { background: white; margin: auto; padding: 16px; border-radius: 12px; max-width: 95%; text-align: center; }
-        .modal img { max-width: 100%; height: auto; border-radius: 8px; }
-        .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #333; }
-        @media (max-width: 600px) { .empresa-nome { font-size: 1rem; } .titulo-relatorio { font-size: 0.9rem; } .data-hora { font-size: 0.7rem; } .logo-area img { height: 40px; } .footer { font-size: 10px; } .filtro input { font-size: 12px; padding: 10px; } }
+        
+        .filtro {
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: row;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filtro label {
+            font-weight: bold;
+            color: #005c8a;
+            background: #e7f1ff;
+            padding: 8px 15px;
+            border-radius: 8px;
+        }
+        
+        .filtro input {
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 250px;
+            transition: all 0.3s ease;
+        }
+        
+        .filtro input:focus {
+            outline: none;
+            border-color: #005c8a;
+            box-shadow: 0 0 0 3px rgba(0,92,138,0.2);
+        }
+        
+        .filtro input::placeholder {
+            color: #999;
+            font-weight: normal;
+        }
+        
+        .filtro-info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+            padding-left: 5px;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 600px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background: #005c8a;
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tr:hover {
+            background: #e8f4f8;
+        }
+        
+        .map-link {
+            background: #0b5ed7;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 16px;
+            text-decoration: none;
+            font-size: 11px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .map-link:hover {
+            background: #005c8a;
+        }
+        
+        .total {
+            font-weight: bold;
+            margin-top: 16px;
+            font-size: 14px;
+            text-align: center;
+            padding: 8px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            background: white;
+            border-radius: 12px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info {
+                display: none !important;
+            }
+            .header {
+                background: #005c8a !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            .map-link {
+                text-decoration: none;
+                color: black;
+                background: none;
+                padding: 0;
+            }
+            .footer {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+            }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow: auto;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            margin: auto;
+            padding: 16px;
+            border-radius: 12px;
+            max-width: 95%;
+            text-align: center;
+        }
+        .modal img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #333;
+        }
+        
+        @media (max-width: 600px) {
+            .empresa-nome { font-size: 1rem; }
+            .titulo-relatorio { font-size: 0.9rem; }
+            .data-hora { font-size: 0.7rem; }
+            .logo-area img { height: 40px; }
+            .footer { font-size: 10px; }
+            .filtro input { font-size: 12px; padding: 10px; }
+            .filtro label { font-size: 12px; padding: 5px 10px; }
+        }
     </style>
 </head>
 <body>
@@ -104,10 +361,21 @@
         <div class="table-wrapper">
             <table id="tabelaRelatorio">
                 <thead>
-                    <tr><th>Equipe</th><th>Solicitação</th><th>Descrição</th><th>Data Abertura</th><th>Data Prazo</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>Cidade</th><th>Mapa</th></tr>
+                    <tr>
+                        <th>Equipe</th>
+                        <th>Solicitação</th>
+                        <th>Descrição</th>
+                        <th>Data Abertura</th>
+                        <th>Data Prazo</th>
+                        <th>Logradouro</th>
+                        <th>Nº</th>
+                        <th>Bairro</th>
+                        <th>Cidade</th>
+                        <th>Mapa</th>
+                    </tr>
                 </thead>
                 <tbody id="tabelaBody"></tbody>
-            </table>
+            </tr>
         </div>
         <div id="totalRegistros" class="total"></div>
     </div>
@@ -127,7 +395,6 @@
 
 <script>
     let dadosRelatorio = [];
-    let timeoutFiltro = null;
     
     function atualizarDataHora() {
         const agora = new Date();
@@ -229,30 +496,23 @@
     }
     
     function renderizarTabela() {
-        const busca = document.getElementById("filtroGeral").value;
-        const buscaLower = busca.toLowerCase().trim();
+        const filtroInput = document.getElementById("filtroGeral").value;
+        const filtro = filtroInput.toLowerCase().trim();
         
         let dadosFiltrados = [];
-        let mensagemBusca = "";
         
-        // VERIFICA SE TEM PELO MENOS 3 LETRAS
-        if (buscaLower.length >= 3) {
-            // FAZ A BUSCA
+        // SÓ FILTRA SE TIVER 3 LETRAS OU MAIS
+        if (filtro.length >= 3) {
             dadosFiltrados = dadosRelatorio.filter(item => {
-                const operador = item.equipe.toLowerCase();
-                const logradouro = item.logradouro.toLowerCase();
-                return operador.includes(buscaLower) || logradouro.includes(buscaLower);
+                const buscaOperador = item.equipe.toLowerCase().includes(filtro);
+                const buscaLogradouro = item.logradouro.toLowerCase().includes(filtro);
+                return buscaOperador || buscaLogradouro;
             });
-            mensagemBusca = ` (filtrado: "${busca}")`;
         } else {
-            // MOSTRA TODOS
+            // MENOS DE 3 LETRAS: MOSTRA TODOS
             dadosFiltrados = [...dadosRelatorio];
-            if (buscaLower.length > 0) {
-                mensagemBusca = ` (digite mais ${3 - buscaLower.length} letras para filtrar)`;
-            }
         }
         
-        // ATUALIZA A TABELA
         const tbody = document.getElementById("tabelaBody");
         tbody.innerHTML = "";
         
@@ -280,31 +540,32 @@
             cellMap.appendChild(link);
         }
         
-        // ATUALIZA O TOTAL
         const totalFiltrados = dadosFiltrados.length;
         const totalGeral = dadosRelatorio.length;
         
-        let textoTotal = `📊 Total de OS: ${totalFiltrados}`;
-        if (totalFiltrados !== totalGeral && buscaLower.length >= 3) {
-            textoTotal += ` (filtrado de ${totalGeral} total)`;
+        let mensagem = `📊 Total de OS: ${totalFiltrados}`;
+        if (filtro.length >= 3 && totalFiltrados !== totalGeral) {
+            mensagem += ` (filtrado de ${totalGeral} total)`;
         }
-        document.getElementById("totalRegistros").innerHTML = textoTotal;
+        document.getElementById("totalRegistros").innerHTML = mensagem;
         
-        // ATUALIZA A MENSAGEM DE INFO
         const infoDiv = document.getElementById("filtroInfo");
-        if (buscaLower.length >= 3) {
+        if (filtro.length >= 3) {
             if (totalFiltrados === 0) {
-                infoDiv.innerHTML = `🔍 Nenhum resultado encontrado para "${busca}" - Tente outro termo`;
+                infoDiv.innerHTML = `🔍 Nenhum resultado encontrado para "${filtroInput}" - Tente outro termo`;
+            } else if (totalFiltrados !== totalGeral) {
+                infoDiv.innerHTML = `🎯 Filtro ativo: "${filtroInput}" → ${totalFiltrados} OS(s) encontradas`;
             } else {
-                infoDiv.innerHTML = `🎯 Filtro ativo: "${busca}" → ${totalFiltrados} OS(s) encontradas`;
+                infoDiv.innerHTML = `🔍 "${filtroInput}" encontrado em todas as ${totalGeral} OS(s)`;
             }
-        } else if (buscaLower.length > 0 && buscaLower.length < 3) {
-            infoDiv.innerHTML = `⌨️ Digite mais ${3 - buscaLower.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
+        } else if (filtro.length > 0 && filtro.length < 3) {
+            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtro.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
         } else {
             infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total`;
         }
     }
     
+    let timeoutFiltro = null;
     function aoDigitar() {
         if (timeoutFiltro) clearTimeout(timeoutFiltro);
         timeoutFiltro = setTimeout(() => {
@@ -327,6 +588,7 @@
         if (botoesCard) botoesCard.style.display = 'none';
         
         alert("📄 Clique em 'Salvar como PDF' na janela que vai abrir");
+        
         window.print();
         
         setTimeout(() => {
@@ -502,12 +764,15 @@
             return;
         }
         
-        const busca = document.getElementById("filtroGeral").value.toLowerCase().trim();
+        const filtroInput = document.getElementById("filtroGeral").value;
+        const filtro = filtroInput.toLowerCase().trim();
         
         let dadosFiltrados = [];
-        if (busca.length >= 3) {
+        if (filtro.length >= 3) {
             dadosFiltrados = dadosRelatorio.filter(item => {
-                return item.equipe.toLowerCase().includes(busca) || item.logradouro.toLowerCase().includes(busca);
+                const buscaOperador = item.equipe.toLowerCase().includes(filtro);
+                const buscaLogradouro = item.logradouro.toLowerCase().includes(filtro);
+                return buscaOperador || buscaLogradouro;
             });
         } else {
             dadosFiltrados = [...dadosRelatorio];
