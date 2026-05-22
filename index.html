@@ -134,13 +134,22 @@
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
         
-        /* FILTROS */
+        /* FILTRO - APENAS EQUIPE */
         .filtro {
             margin-bottom: 16px;
             display: flex;
             flex-direction: row;
             gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filtro label {
+            font-weight: bold;
+            color: #005c8a;
+            background: #e7f1ff;
+            padding: 8px 15px;
+            border-radius: 8px;
         }
         
         .filtro input {
@@ -149,7 +158,7 @@
             border-radius: 8px;
             font-size: 14px;
             flex: 1;
-            min-width: 200px;
+            min-width: 250px;
             transition: all 0.3s ease;
         }
         
@@ -310,6 +319,7 @@
             .logo-area img { height: 40px; }
             .footer { font-size: 10px; }
             .filtro input { font-size: 12px; padding: 10px; }
+            .filtro label { font-size: 12px; padding: 5px 10px; }
         }
     </style>
 </head>
@@ -346,11 +356,11 @@
 
     <div class="card" id="relatorioCard">
         <div class="filtro">
-            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Equipe... (ex: VALDECI, MARCOS, MURILO)" autocomplete="off">
-            <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro... (ex: SÃO, RIO, TRES)" autocomplete="off">
+            <label>👥 Filtrar por Operador:</label>
+            <input type="text" id="filtroEquipe" placeholder="Digite o nome do operador (mínimo 3 letras)..." autocomplete="off">
         </div>
         <div class="filtro-info" id="filtroInfo">
-            💡 Digite para filtrar em tempo real
+            💡 Digite pelo menos 3 letras para filtrar os operadores
         </div>
         
         <div class="table-wrapper">
@@ -390,6 +400,7 @@
 
 <script>
     let dadosRelatorio = [];
+    let timeoutFiltro = null;
     
     // Normaliza texto: remove acentos, minúsculas, trim
     function normalizar(texto) {
@@ -504,13 +515,14 @@
     
     function renderizarTabela() {
         const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
-        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
         
-        const filtrados = dadosRelatorio.filter(item => {
-            const matchEquipe = filtroEquipe === "" || normalizar(item.equipe).includes(filtroEquipe);
-            const matchLogradouro = filtroLogradouro === "" || normalizar(item.logradouro).includes(filtroLogradouro);
-            return matchEquipe && matchLogradouro;
-        });
+        // Só filtra se tiver 3 letras ou mais
+        let filtrados = dadosRelatorio;
+        if (filtroEquipe.length >= 3) {
+            filtrados = dadosRelatorio.filter(item => {
+                return normalizar(item.equipe).includes(filtroEquipe);
+            });
+        }
         
         const tbody = document.getElementById("tabelaBody");
         tbody.innerHTML = "";
@@ -543,17 +555,31 @@
         const totalGeral = dadosRelatorio.length;
         
         let mensagem = `📊 Total de OS: ${totalFiltrados}`;
-        if (totalFiltrados !== totalGeral) {
+        if (filtroEquipe.length >= 3 && totalFiltrados !== totalGeral) {
             mensagem += ` (filtrado de ${totalGeral} total)`;
         }
         document.getElementById("totalRegistros").innerHTML = mensagem;
         
         const infoDiv = document.getElementById("filtroInfo");
-        if (filtroEquipe || filtroLogradouro) {
-            infoDiv.innerHTML = `🎯 Filtro ativo: ${totalFiltrados} OS(s) exibida(s) de ${totalGeral} total`;
+        if (filtroEquipe.length >= 3 && totalFiltrados !== totalGeral) {
+            infoDiv.innerHTML = `🎯 Filtro ativo: exibindo ${totalFiltrados} OS(s) do operador "${document.getElementById("filtroEquipe").value}"`;
+        } else if (filtroEquipe.length >= 3 && totalFiltrados === totalGeral) {
+            infoDiv.innerHTML = `🔍 Nenhum operador encontrado com "${document.getElementById("filtroEquipe").value}" - exibindo todos os ${totalGeral} resultados`;
+        } else if (filtroEquipe.length > 0 && filtroEquipe.length < 3) {
+            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtroEquipe.length} caractere(s) para filtrar os operadores - ${totalGeral} OS(s) no total`;
         } else {
-            infoDiv.innerHTML = `💡 Digite para filtrar em tempo real - ${totalGeral} OS(s) no total`;
+            infoDiv.innerHTML = `💡 Digite pelo menos 3 letras para filtrar os operadores - ${totalGeral} OS(s) no total`;
         }
+    }
+    
+    // Filtro com delay para não travar
+    function aplicarFiltro() {
+        // Limpa timeout anterior
+        if (timeoutFiltro) clearTimeout(timeoutFiltro);
+        // Aplica o filtro após 300ms (enquanto digita)
+        timeoutFiltro = setTimeout(() => {
+            renderizarTabela();
+        }, 300);
     }
     
     function gerarPDF() {
@@ -760,13 +786,13 @@
         }
         
         const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
-        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
         
-        const filtrados = dadosRelatorio.filter(item => {
-            const matchEquipe = filtroEquipe === "" || normalizar(item.equipe).includes(filtroEquipe);
-            const matchLogradouro = filtroLogradouro === "" || normalizar(item.logradouro).includes(filtroLogradouro);
-            return matchEquipe && matchLogradouro;
-        });
+        let filtrados = dadosRelatorio;
+        if (filtroEquipe.length >= 3) {
+            filtrados = dadosRelatorio.filter(item => {
+                return normalizar(item.equipe).includes(filtroEquipe);
+            });
+        }
         
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
         
@@ -792,8 +818,7 @@
         dadosRelatorio = [];
         document.getElementById("totalRegistros").innerHTML = "";
         document.getElementById("filtroEquipe").value = "";
-        document.getElementById("filtroLogradouro").value = "";
-        document.getElementById("filtroInfo").innerHTML = "💡 Digite para filtrar em tempo real";
+        document.getElementById("filtroInfo").innerHTML = "💡 Digite pelo menos 3 letras para filtrar os operadores";
         alert("✅ OS limpas!");
     }
     
@@ -815,7 +840,7 @@
                 return;
             }
         }
-        renderizarTabela();
+        aplicarFiltro();
     }
     
     // Eventos
@@ -826,7 +851,6 @@
     document.getElementById("btnLimparOS").addEventListener("click", limparOS);
     document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
     document.getElementById("filtroEquipe").addEventListener("input", filtrarAoDigitar);
-    document.getElementById("filtroLogradouro").addEventListener("input", filtrarAoDigitar);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
 </script>
 </body>
