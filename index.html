@@ -374,11 +374,19 @@
     }
 
     // ─── DEBOUNCE DO FILTRO ───────────────────────────────────────────────────
+    // Se ainda não gerou o relatório mas há HTML colado, gera automaticamente
+    // antes de filtrar — assim a pesquisa funciona sem precisar clicar em Gerar
     let timeoutFiltro = null;
     function aoDigitar() {
         if (timeoutFiltro) clearTimeout(timeoutFiltro);
         timeoutFiltro = setTimeout(() => {
-            if (dadosRelatorio.length > 0) renderizarTabela();
+            const htmlColado = document.getElementById("htmlInput").value.trim();
+            if (dadosRelatorio.length === 0 && htmlColado) {
+                // Gera silenciosamente (sem alert) e depois filtra
+                gerarRelatorio(true);
+            } else {
+                renderizarTabela();
+            }
         }, 250);
     }
 
