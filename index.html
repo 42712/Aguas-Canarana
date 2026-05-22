@@ -54,7 +54,36 @@
         .map-link:hover { background: #005c8a; }
         .total { font-weight: bold; margin-top: 16px; font-size: 14px; text-align: center; padding: 8px; background: #e9ecef; border-radius: 8px; }
         .footer { text-align: center; padding: 12px; margin-top: 20px; font-size: 12px; color: #6c757d; border-top: 1px solid #dee2e6; background: white; border-radius: 12px; }
-        @media print { body { background: white; padding: 0; margin: 0; } .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info { display: none !important; } .header { background: #005c8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } .map-link { text-decoration: none; color: black; background: none; padding: 0; } .footer { position: fixed; bottom: 0; width: 100%; } }
+        
+        /* Estilo para o select inline */
+        .operador-select {
+            width: 100%;
+            padding: 4px 6px;
+            font-size: 11px;
+            border: 1px solid #005c8a;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+        .operador-select:focus {
+            outline: none;
+            border-color: #0b5ed7;
+            box-shadow: 0 0 0 2px rgba(11,94,215,0.2);
+        }
+        .operador-clicavel {
+            cursor: pointer;
+            color: #005c8a;
+            font-weight: bold;
+            text-decoration: underline;
+            display: inline-block;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .operador-clicavel:hover {
+            background: #e8f4f8;
+        }
+        
+        @media print { body { background: white; padding: 0; margin: 0; } .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info { display: none !important; } .header { background: #005c8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } .map-link { text-decoration: none; color: black; background: none; padding: 0; } .footer { position: fixed; bottom: 0; width: 100%; } .operador-clicavel { text-decoration: none; color: black; } .operador-select { display: none; } }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow: auto; padding: 20px; }
         .modal-content { background: white; margin: auto; padding: 16px; border-radius: 12px; max-width: 95%; text-align: center; }
         .modal img { max-width: 100%; height: auto; border-radius: 8px; }
@@ -127,6 +156,7 @@
 
 <script>
     let dadosRelatorio = [];
+    let listaOperadores = []; // Lista de todos os operadores disponíveis
     let timeoutFiltro = null;
     
     function atualizarDataHora() {
@@ -136,20 +166,38 @@
     atualizarDataHora();
     setInterval(atualizarDataHora, 1000);
 
-    function extrairOperador(linhaHtml) {
-        // Tenta extrair o padrão OP-VALDECI, OP-MARCOS, OP-MURILO, etc.
-        const matchOp = linhaHtml.match(/OP-[A-ZÀ-Ú]+/i);
-        if (matchOp) {
-            return matchOp[0].toUpperCase();
+    // Extrai TODOS os operadores do dropdown
+    function extrairTodosOperadores(html) {
+        const operadores = [];
+        const regex = /CANARANA\s*-\s*(OP-[A-ZÀ-Ú]+)/gi;
+        let match;
+        while ((match = regex.exec(html)) !== null) {
+            const op = match[1].toUpperCase();
+            if (!operadores.includes(op)) {
+                operadores.push(op);
+            }
         }
-        
-        // Tenta extrair o nome que está no span qtip
-        const matchQtip = linhaHtml.match(/qtip="([^"]*CANARANA[^"]*)"/i);
-        if (matchQtip) {
-            let nome = matchQtip[1];
+        return operadores;
+    }
+
+    // Extrai o operador SELECIONADO no dropdown
+    function extrairOperadorSelecionado(html) {
+        // Procura pelo item selecionado (classe x-grid-item-focused ou I2HUBSB-X-g)
+        let match = html.match(/<tr[^>]*class="[^"]*x-grid-item-focused[^"]*"[^>]*>[\s\S]*?<span qtip="([^"]+)"[^>]*>/i);
+        if (!match) {
+            match = html.match(/<tr[^>]*class="[^"]*I2HUBSB-X-g[^"]*"[^>]*>[\s\S]*?<span qtip="([^"]+)"[^>]*>/i);
+        }
+        if (match) {
+            let nome = match[1];
             nome = nome.replace(/^CANARANA\s*-\s*/i, '');
             nome = nome.replace(/\(\d+\)/g, '').trim();
             return nome;
+        }
+        
+        // Se não achou o selecionado, pega o primeiro operador da lista
+        const operadorMatch = html.match(/CANARANA\s*-\s*(OP-[A-ZÀ-Ú]+)/i);
+        if (operadorMatch) {
+            return operadorMatch[1].toUpperCase();
         }
         
         return "Não identificado";
@@ -162,6 +210,12 @@
             return;
         }
 
+        // Extrai a lista de todos os operadores do dropdown
+        listaOperadores = extrairTodosOperadores(html);
+        
+        // Extrai o operador que está SELECIONADO
+        const operadorSelecionado = extrairOperadorSelecionado(html);
+        
         dadosRelatorio = [];
         
         const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
@@ -170,9 +224,6 @@
         while ((match = linhaRegex.exec(html)) !== null) {
             const linhaHtml = match[1];
             if (linhaHtml.includes("<th")) continue;
-            
-            // Extrai o operador ESPECÍFICO desta linha
-            const operador = extrairOperador(linhaHtml);
             
             const celulas = [];
             const tdRegex = /<td[^>]*cellindex="(\d+)"[^>]*>(?:<div[^>]*>)*([\s\S]*?)(?:<\/div>)*<\/td>/gi;
@@ -204,7 +255,7 @@
             
             if (solicitacao || logradouro) {
                 dadosRelatorio.push({
-                    equipe: operador,
+                    equipe: operadorSelecionado,
                     solicitacao: solicitacao,
                     descricao: descricao,
                     dataAbertura: dataAbertura,
@@ -212,7 +263,8 @@
                     logradouro: logradouro,
                     numero: numero,
                     bairro: bairro,
-                    cidade: cidade
+                    cidade: cidade,
+                    id: Math.random().toString(36).substr(2, 9) // ID único para edição
                 });
             }
         }
@@ -224,9 +276,17 @@
             return;
         }
         
-        if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
+        if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)! Operadores disponíveis: ${listaOperadores.join(', ')}`);
         
         renderizarTabela();
+    }
+    
+    // Função para editar o operador de uma OS específica
+    function editarOperador(index, novoOperador) {
+        if (index >= 0 && index < dadosRelatorio.length) {
+            dadosRelatorio[index].equipe = novoOperador;
+            renderizarTabela(); // Re-renderiza a tabela
+        }
     }
     
     function renderizarTabela() {
@@ -248,12 +308,27 @@
         const tbody = document.getElementById("tabelaBody");
         tbody.innerHTML = "";
         
-        for (const item of dadosFiltrados) {
+        for (let idx = 0; idx < dadosFiltrados.length; idx++) {
+            const item = dadosFiltrados[idx];
+            // Encontra o índice original no dadosRelatorio para edição
+            const originalIndex = dadosRelatorio.findIndex(d => d.id === item.id);
+            
             const enderecoMapa = `${item.logradouro}, Canarana - MT`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
             
             const row = tbody.insertRow();
-            row.insertCell(0).textContent = item.equipe;
+            
+            // Coluna Equipe - COM BOTÃO CLICÁVEL PARA EDITAR
+            const cellEquipe = row.insertCell(0);
+            const operadorSpan = document.createElement('span');
+            operadorSpan.textContent = item.equipe;
+            operadorSpan.className = 'operador-clicavel';
+            operadorSpan.title = 'Clique para alterar o operador';
+            operadorSpan.onclick = (function(idxOriginal) {
+                return function() { mostrarSelectOperador(idxOriginal, this); };
+            })(originalIndex);
+            cellEquipe.appendChild(operadorSpan);
+            
             row.insertCell(1).textContent = item.solicitacao;
             row.insertCell(2).textContent = item.descricao;
             row.insertCell(3).textContent = item.dataAbertura;
@@ -291,8 +366,59 @@
         } else if (buscaLower.length > 0 && buscaLower.length < 3) {
             infoDiv.innerHTML = `⌨️ Digite mais ${3 - buscaLower.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
         } else {
-            infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total`;
+            infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total | ✏️ Clique no operador para alterar`;
         }
+    }
+    
+    // Mostra o select para escolher o operador
+    function mostrarSelectOperador(index, elementoSpan) {
+        // Remove qualquer select aberto
+        const selectsAbertos = document.querySelectorAll('.operador-select-temp');
+        selectsAbertos.forEach(sel => sel.remove());
+        
+        // Cria o select
+        const select = document.createElement('select');
+        select.className = 'operador-select operador-select-temp';
+        
+        // Adiciona as opções
+        const operadoresParaMostrar = listaOperadores.length > 0 ? listaOperadores : ['OP-MARCOS', 'OP-VALDECI', 'OP-MURILO', 'OP-NATALIA', 'OP-CHRIS'];
+        
+        operadoresParaMostrar.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op;
+            option.textContent = op;
+            if (dadosRelatorio[index] && dadosRelatorio[index].equipe === op) {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+        
+        // Estiliza o select
+        select.style.position = 'absolute';
+        select.style.zIndex = '1000';
+        
+        // Posiciona o select sobre o span
+        const rect = elementoSpan.getBoundingClientRect();
+        select.style.left = rect.left + 'px';
+        select.style.top = rect.top + 'px';
+        select.style.width = rect.width + 'px';
+        select.style.minWidth = '120px';
+        
+        // Quando mudar, atualiza o operador
+        select.onchange = (e) => {
+            const novoOperador = e.target.value;
+            dadosRelatorio[index].equipe = novoOperador;
+            renderizarTabela();
+            select.remove();
+        };
+        
+        // Quando perder o foco, remove
+        select.onblur = () => {
+            setTimeout(() => select.remove(), 200);
+        };
+        
+        document.body.appendChild(select);
+        select.focus();
     }
     
     function aoDigitar() {
@@ -525,6 +651,7 @@
     function limparOS() {
         document.getElementById("tabelaBody").innerHTML = "";
         dadosRelatorio = [];
+        listaOperadores = [];
         document.getElementById("totalRegistros").innerHTML = "";
         document.getElementById("filtroGeral").value = "";
         document.getElementById("filtroInfo").innerHTML = "💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras)";
