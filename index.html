@@ -133,12 +133,22 @@
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
         
+        /* FILTRO ÚNICO */
         .filtro {
             margin-bottom: 16px;
             display: flex;
             flex-direction: row;
             gap: 12px;
             flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filtro label {
+            font-weight: bold;
+            color: #005c8a;
+            background: #e7f1ff;
+            padding: 8px 15px;
+            border-radius: 8px;
         }
         
         .filtro input {
@@ -147,7 +157,7 @@
             border-radius: 8px;
             font-size: 14px;
             flex: 1;
-            min-width: 200px;
+            min-width: 250px;
             transition: all 0.3s ease;
         }
         
@@ -308,11 +318,13 @@
             .logo-area img { height: 40px; }
             .footer { font-size: 10px; }
             .filtro input { font-size: 12px; padding: 10px; }
+            .filtro label { font-size: 12px; padding: 5px 10px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- HEADER - FAIXA AZUL EM CIMA -->
     <div class="header" id="headerPrincipal">
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
@@ -343,11 +355,11 @@
 
     <div class="card" id="relatorioCard">
         <div class="filtro">
-            <input type="text" id="filtroEquipe" placeholder="🔍 Filtrar por Operador (mínimo 3 letras)..." autocomplete="off">
-            <input type="text" id="filtroLogradouro" placeholder="🔍 Filtrar por Logradouro (mínimo 3 letras)..." autocomplete="off">
+            <label>🔍 Pesquisar:</label>
+            <input type="text" id="filtroGeral" placeholder="Digite o nome do operador OU o logradouro (mínimo 3 letras)..." autocomplete="off">
         </div>
         <div class="filtro-info" id="filtroInfo">
-            💡 Digite pelo menos 3 letras para filtrar
+            💡 Digite pelo menos 3 letras para filtrar por Operador ou Logradouro
         </div>
         
         <div class="table-wrapper">
@@ -389,6 +401,7 @@
     let dadosRelatorio = [];
     let timeoutFiltro = null;
     
+    // Normaliza texto: remove acentos, minúsculas, trim
     function normalizar(texto) {
         if (texto === null || texto === undefined) return "";
         return texto
@@ -500,19 +513,17 @@
     }
     
     function renderizarTabela() {
-        const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
-        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
+        const filtro = normalizar(document.getElementById("filtroGeral").value);
         
+        // Só filtra se tiver 3 letras ou mais
         let filtrados = dadosRelatorio;
-        
-        // Só filtra por equipe se tiver 3 letras ou mais
-        if (filtroEquipe.length >= 3) {
-            filtrados = filtrados.filter(item => normalizar(item.equipe).includes(filtroEquipe));
-        }
-        
-        // Só filtra por logradouro se tiver 3 letras ou mais
-        if (filtroLogradouro.length >= 3) {
-            filtrados = filtrados.filter(item => normalizar(item.logradouro).includes(filtroLogradouro));
+        if (filtro.length >= 3) {
+            filtrados = dadosRelatorio.filter(item => {
+                // Busca por OPERADOR (Equipe) OU por LOGRADOURO
+                const buscaOperador = normalizar(item.equipe).includes(filtro);
+                const buscaLogradouro = normalizar(item.logradouro).includes(filtro);
+                return buscaOperador || buscaLogradouro;
+            });
         }
         
         const tbody = document.getElementById("tabelaBody");
@@ -546,28 +557,26 @@
         const totalGeral = dadosRelatorio.length;
         
         let mensagem = `📊 Total de OS: ${totalFiltrados}`;
-        if ((filtroEquipe.length >= 3 || filtroLogradouro.length >= 3) && totalFiltrados !== totalGeral) {
+        if (filtro.length >= 3 && totalFiltrados !== totalGeral) {
             mensagem += ` (filtrado de ${totalGeral} total)`;
         }
         document.getElementById("totalRegistros").innerHTML = mensagem;
         
-        // Atualiza info do filtro
         const infoDiv = document.getElementById("filtroInfo");
-        const equipeValor = document.getElementById("filtroEquipe").value;
-        const logradouroValor = document.getElementById("filtroLogradouro").value;
+        const valorDigitado = document.getElementById("filtroGeral").value;
         
-        if (filtroEquipe.length >= 3 && filtroLogradouro.length >= 3) {
-            infoDiv.innerHTML = `🎯 Filtros ativos: Operador "${equipeValor}" + Logradouro "${logradouroValor}" → ${totalFiltrados} OS(s) encontradas`;
-        } else if (filtroEquipe.length >= 3) {
-            infoDiv.innerHTML = `🎯 Filtro por Operador: "${equipeValor}" → ${totalFiltrados} OS(s) encontradas`;
-        } else if (filtroLogradouro.length >= 3) {
-            infoDiv.innerHTML = `🎯 Filtro por Logradouro: "${logradouroValor}" → ${totalFiltrados} OS(s) encontradas`;
-        } else if (filtroEquipe.length > 0 && filtroEquipe.length < 3) {
-            infoDiv.innerHTML = `⌨️ Operador: digite mais ${3 - filtroEquipe.length} caractere(s) - ${totalGeral} OS(s) no total`;
-        } else if (filtroLogradouro.length > 0 && filtroLogradouro.length < 3) {
-            infoDiv.innerHTML = `⌨️ Logradouro: digite mais ${3 - filtroLogradouro.length} caractere(s) - ${totalGeral} OS(s) no total`;
+        if (filtro.length >= 3) {
+            if (totalFiltrados === 0) {
+                infoDiv.innerHTML = `🔍 Nenhum resultado encontrado para "${valorDigitado}" - Tente outro termo`;
+            } else if (totalFiltrados !== totalGeral) {
+                infoDiv.innerHTML = `🎯 Filtro ativo: "${valorDigitado}" → ${totalFiltrados} OS(s) encontradas (Operador ou Logradouro)`;
+            } else {
+                infoDiv.innerHTML = `🔍 "${valorDigitado}" encontrado em todas as ${totalGeral} OS(s)`;
+            }
+        } else if (filtro.length > 0 && filtro.length < 3) {
+            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtro.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
         } else {
-            infoDiv.innerHTML = `💡 Digite pelo menos 3 letras para filtrar - ${totalGeral} OS(s) no total`;
+            infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total`;
         }
     }
     
@@ -773,15 +782,15 @@
             return;
         }
         
-        const filtroEquipe = normalizar(document.getElementById("filtroEquipe").value);
-        const filtroLogradouro = normalizar(document.getElementById("filtroLogradouro").value);
+        const filtro = normalizar(document.getElementById("filtroGeral").value);
         
         let filtrados = dadosRelatorio;
-        if (filtroEquipe.length >= 3) {
-            filtrados = filtrados.filter(item => normalizar(item.equipe).includes(filtroEquipe));
-        }
-        if (filtroLogradouro.length >= 3) {
-            filtrados = filtrados.filter(item => normalizar(item.logradouro).includes(filtroLogradouro));
+        if (filtro.length >= 3) {
+            filtrados = dadosRelatorio.filter(item => {
+                const buscaOperador = normalizar(item.equipe).includes(filtro);
+                const buscaLogradouro = normalizar(item.logradouro).includes(filtro);
+                return buscaOperador || buscaLogradouro;
+            });
         }
         
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
@@ -807,9 +816,8 @@
         document.getElementById("tabelaBody").innerHTML = "";
         dadosRelatorio = [];
         document.getElementById("totalRegistros").innerHTML = "";
-        document.getElementById("filtroEquipe").value = "";
-        document.getElementById("filtroLogradouro").value = "";
-        document.getElementById("filtroInfo").innerHTML = "💡 Digite pelo menos 3 letras para filtrar";
+        document.getElementById("filtroGeral").value = "";
+        document.getElementById("filtroInfo").innerHTML = "💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras)";
         alert("✅ OS limpas!");
     }
     
@@ -841,8 +849,7 @@
     document.getElementById("btnImg").addEventListener("click", gerarImagem);
     document.getElementById("btnLimparOS").addEventListener("click", limparOS);
     document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
-    document.getElementById("filtroEquipe").addEventListener("input", filtrarAoDigitar);
-    document.getElementById("filtroLogradouro").addEventListener("input", filtrarAoDigitar);
+    document.getElementById("filtroGeral").addEventListener("input", filtrarAoDigitar);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
 </script>
 </body>
