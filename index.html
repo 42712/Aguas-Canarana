@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Águas Canarana - Relatório de OS</title>
     
-    <!-- Biblioteca apenas para imagem -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     
     <style>
@@ -148,18 +147,12 @@
             font-size: 14px;
             flex: 1;
             min-width: 200px;
-            transition: all 0.3s ease;
         }
         
         .filtro input:focus {
             outline: none;
             border-color: #005c8a;
             box-shadow: 0 0 0 3px rgba(0,92,138,0.2);
-        }
-        
-        .filtro input::placeholder {
-            color: #999;
-            font-weight: normal;
         }
         
         .filtro-info {
@@ -200,11 +193,6 @@
             background: #f8f9fa;
         }
         
-        tr:hover {
-            background: #e8f4f8;
-            cursor: pointer;
-        }
-        
         .map-link {
             background: #0b5ed7;
             color: white;
@@ -214,10 +202,6 @@
             font-size: 11px;
             display: inline-block;
             white-space: nowrap;
-        }
-        
-        .map-link:hover {
-            background: #005c8a;
         }
         
         .total {
@@ -247,15 +231,13 @@
                 padding: 0;
                 margin: 0;
             }
-            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .btn-group, .filtro-info {
+            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info {
                 display: none !important;
             }
             .header {
                 background: #005c8a !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                margin: 0 !important;
-                border-radius: 0 !important;
             }
             .map-link {
                 text-decoration: none;
@@ -263,20 +245,10 @@
                 background: none;
                 padding: 0;
             }
-            table {
-                font-size: 10px;
-            }
-            .card {
-                box-shadow: none;
-                padding: 0;
-                margin: 0;
-            }
             .footer {
                 position: fixed;
                 bottom: 0;
                 width: 100%;
-                background: white;
-                font-size: 10px;
             }
         }
         
@@ -318,13 +290,12 @@
             .titulo-relatorio { font-size: 0.9rem; }
             .data-hora { font-size: 0.7rem; }
             .logo-area img { height: 40px; }
-            .footer { font-size: 10px; }
-            .filtro input { font-size: 12px; padding: 10px; }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- HEADER - FAIXA AZUL EM CIMA -->
     <div class="header" id="headerPrincipal">
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
@@ -411,7 +382,6 @@
         if (!nome) return "Não identificada";
         let nomeLimpo = nome.replace(/^CANARANA\s*-\s*/i, '');
         nomeLimpo = nomeLimpo.replace(/^CANARANA-/i, '');
-        nomeLimpo = nomeLimpo.replace(/^OP-/i, 'OP-');
         return nomeLimpo;
     }
 
@@ -428,13 +398,6 @@
         const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
         if (equipeMatch) {
             equipe = limparNomeEquipe(equipeMatch[1]);
-        }
-        
-        if (equipe === "Não identificada") {
-            const equipeMatch2 = html.match(/CANARANA\s*-\s*(OP-[A-Z]+[^<]*)/i);
-            if (equipeMatch2) {
-                equipe = limparNomeEquipe(equipeMatch2[1]);
-            }
         }
         
         const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
@@ -464,7 +427,6 @@
             const bairro = celulas[20] || "";
             let cidade = celulas[21] || "Canarana";
             
-            // Limpa o logradouro (remove espaços extras)
             logradouro = logradouro.replace(/\s+/g, ' ').trim();
             
             if (cidade && cidade !== "Canarana") {
@@ -491,7 +453,7 @@
         }
         
         if (dadosRelatorio.length === 0) {
-            alert("❌ Nenhuma OS encontrada. Verifique o HTML copiado.");
+            alert("❌ Nenhuma OS encontrada!");
         } else {
             alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
         }
@@ -500,26 +462,29 @@
     }
     
     function renderizarTabela() {
-        // PEGA OS VALORES DOS FILTROS - tudo em minúsculo e sem espaços extras
+        // PEGA OS FILTROS
         const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase().trim();
         const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase().trim();
         
-        // APLICA OS FILTROS - IGUAL AO SEU CÓDIGO QUE FUNCIONOU!
-        const filtrados = dadosRelatorio.filter(item => {
-            // Filtro por Equipe (igual ao seu que funciona)
-            const matchEquipe = filtroEquipe === "" || item.equipe.toLowerCase().includes(filtroEquipe);
-            
-            // Filtro por Logradouro (MESMA LÓGICA!)
-            const matchLogradouro = filtroLogradouro === "" || item.logradouro.toLowerCase().includes(filtroLogradouro);
-            
-            // Retorna true se ambos os filtros passarem
-            return matchEquipe && matchLogradouro;
-        });
+        // APLICA OS FILTROS
+        let dadosFiltrados = dadosRelatorio;
+        
+        if (filtroEquipe !== "") {
+            dadosFiltrados = dadosFiltrados.filter(item => 
+                item.equipe.toLowerCase().includes(filtroEquipe)
+            );
+        }
+        
+        if (filtroLogradouro !== "") {
+            dadosFiltrados = dadosFiltrados.filter(item => 
+                item.logradouro.toLowerCase().includes(filtroLogradouro)
+            );
+        }
         
         const tbody = document.getElementById("tabelaBody");
         tbody.innerHTML = "";
         
-        for (const item of filtrados) {
+        for (const item of dadosFiltrados) {
             const enderecoCompleto = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoCompleto)}`;
             
@@ -543,7 +508,7 @@
             cellMap.appendChild(link);
         }
         
-        const totalFiltrados = filtrados.length;
+        const totalFiltrados = dadosFiltrados.length;
         const totalGeral = dadosRelatorio.length;
         
         let mensagem = `📊 Total de OS: ${totalFiltrados}`;
@@ -552,7 +517,6 @@
         }
         document.getElementById("totalRegistros").innerHTML = mensagem;
         
-        // Atualiza info do filtro
         const infoDiv = document.getElementById("filtroInfo");
         if (filtroEquipe || filtroLogradouro) {
             infoDiv.innerHTML = `🎯 Filtro ativo: ${totalFiltrados} OS(s) exibida(s) de ${totalGeral} total`;
@@ -597,25 +561,32 @@
         btnImg.textContent = "⏳ Gerando...";
         btnImg.disabled = true;
         
+        // Esconde filtros
         const filtroDiv = document.querySelector('.filtro');
         const filtroInfoDiv = document.querySelector('.filtro-info');
         if (filtroDiv) filtroDiv.style.display = 'none';
         if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
         
+        // Cria container para imagem
         const tempContainer = document.createElement('div');
         tempContainer.style.backgroundColor = 'white';
         tempContainer.style.padding = '20px';
         tempContainer.style.borderRadius = '12px';
+        tempContainer.style.width = '100%';
         
+        // 1. HEADER (faixa azul) - TEM QUE SER O PRIMEIRO
         const headerClone = document.getElementById('headerPrincipal').cloneNode(true);
         headerClone.style.margin = '0';
         headerClone.style.marginBottom = '20px';
+        headerClone.style.borderRadius = '12px';
         tempContainer.appendChild(headerClone);
         
+        // 2. TABELA
         const tabelaClone = document.getElementById('tabelaRelatorio').cloneNode(true);
         tabelaClone.style.width = '100%';
         tempContainer.appendChild(tabelaClone);
         
+        // 3. TOTAL
         const totalOriginal = document.getElementById('totalRegistros');
         if (totalOriginal && totalOriginal.innerHTML) {
             const totalClone = document.createElement('div');
@@ -629,6 +600,7 @@
             tempContainer.appendChild(totalClone);
         }
         
+        // 4. RODAPÉ
         const footerClone = document.createElement('div');
         footerClone.style.textAlign = 'center';
         footerClone.style.padding = '12px';
@@ -645,18 +617,25 @@
         document.body.appendChild(tempContainer);
         
         try {
+            // Aguarda um pouco para garantir o render
+            await new Promise(r => setTimeout(r, 100));
+            
             const canvas = await html2canvas(tempContainer, {
                 scale: 2.5,
                 backgroundColor: '#ffffff',
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                windowWidth: tempContainer.scrollWidth
             });
             
             const imageData = canvas.toDataURL('image/png');
-            document.getElementById('modalImage').src = imageData;
-            document.getElementById('imageModal').style.display = 'block';
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = imageData;
+            modal.style.display = 'block';
             
         } catch (error) {
+            console.error('Erro:', error);
             alert('Erro ao gerar imagem: ' + error.message);
         } finally {
             document.body.removeChild(tempContainer);
@@ -676,15 +655,19 @@
         const filtroEquipe = document.getElementById("filtroEquipe").value.toLowerCase().trim();
         const filtroLogradouro = document.getElementById("filtroLogradouro").value.toLowerCase().trim();
         
-        const filtrados = dadosRelatorio.filter(item => {
-            const matchEquipe = filtroEquipe === "" || item.equipe.toLowerCase().includes(filtroEquipe);
-            const matchLogradouro = filtroLogradouro === "" || item.logradouro.toLowerCase().includes(filtroLogradouro);
-            return matchEquipe && matchLogradouro;
-        });
+        let dadosFiltrados = dadosRelatorio;
+        
+        if (filtroEquipe !== "") {
+            dadosFiltrados = dadosFiltrados.filter(item => item.equipe.toLowerCase().includes(filtroEquipe));
+        }
+        
+        if (filtroLogradouro !== "") {
+            dadosFiltrados = dadosFiltrados.filter(item => item.logradouro.toLowerCase().includes(filtroLogradouro));
+        }
         
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
         
-        for (const item of filtrados) {
+        for (const item of dadosFiltrados) {
             const endereco = `${item.logradouro} ${item.numero}, ${item.bairro}, ${item.cidade}`;
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
             csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
@@ -720,6 +703,7 @@
         document.getElementById("imageModal").style.display = "none";
     }
     
+    // Eventos
     document.getElementById("btnGerar").addEventListener("click", gerarRelatorio);
     document.getElementById("btnExcel").addEventListener("click", exportarExcel);
     document.getElementById("btnPDF").addEventListener("click", gerarPDF);
@@ -727,7 +711,7 @@
     document.getElementById("btnLimparOS").addEventListener("click", limparOS);
     document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
     
-    // FILTROS EM TEMPO REAL - USANDO A MESMA LÓGICA QUE FUNCIONOU PARA EQUIPE
+    // FILTROS EM TEMPO REAL
     document.getElementById("filtroEquipe").addEventListener("input", renderizarTabela);
     document.getElementById("filtroLogradouro").addEventListener("input", renderizarTabela);
     
