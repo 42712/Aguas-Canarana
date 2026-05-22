@@ -248,8 +248,8 @@
         tbody.innerHTML = "";
         
         for (const item of dadosFiltrados) {
-            // ✅ CORREÇÃO: link do mapa usando APENAS o logradouro
-            const enderecoMapa = item.logradouro.trim();
+            // ✅ CORREÇÃO: link do mapa com logradouro + Canarana - MT
+            const enderecoMapa = `${item.logradouro}, Canarana - MT`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
             
             const row = tbody.insertRow();
@@ -506,7 +506,8 @@
         let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
         
         for (const item of dadosFiltrados) {
-            const enderecoMapa = item.logradouro.trim();
+            // ✅ CORREÇÃO: link do mapa no Excel com logradouro + Canarana - MT
+            const enderecoMapa = `${item.logradouro}, Canarana - MT`.trim();
             const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
             csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
         }
