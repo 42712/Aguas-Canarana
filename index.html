@@ -13,9 +13,15 @@
         .container { max-width: 100%; margin: 0 auto; }
         .header {
             background: linear-gradient(135deg, #005c8a 0%, #003d5e 100%);
-            border-radius: 16px; padding: 16px 20px; margin-bottom: 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .logo-area { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         .logo-area img { height: 55px; width: auto; background: white; border-radius: 12px; padding: 5px 12px; }
@@ -26,7 +32,7 @@
         textarea { width: 100%; height: 180px; padding: 12px; font-family: 'Courier New', monospace; font-size: 12px; border: 1px solid #ccc; border-radius: 8px; resize: vertical; }
         .instrucao { background: #e7f1ff; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 13px; color: #005c8a; border-left: 4px solid #005c8a; }
         .btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-        button { background: #0b5ed7; color: white; border: none; padding: 10px 16px; font-size: 14px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 90px; transition: 0.2s; font-weight: bold; }
+        button { background: #0b5ed7; color: white; border: none; padding: 10px 16px; font-size: 14px; border-radius: 8px; cursor: pointer; flex: 1; min-width: 90px; font-weight: bold; }
         .btn-excel { background: #198754; }
         .btn-pdf { background: #dc3545; }
         .btn-img { background: #6f42c1; }
@@ -35,145 +41,25 @@
         .btn-gerar { background: #005c8a; }
         .filtro { margin-bottom: 16px; display: flex; flex-direction: row; gap: 12px; flex-wrap: wrap; align-items: center; }
         .filtro label { font-weight: bold; color: #005c8a; background: #e7f1ff; padding: 8px 15px; border-radius: 8px; }
-        .filtro input { padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; flex: 1; min-width: 250px; transition: all 0.3s ease; }
+        .filtro input { padding: 12px 15px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; flex: 1; min-width: 250px; }
         .filtro input:focus { outline: none; border-color: #005c8a; box-shadow: 0 0 0 3px rgba(0,92,138,0.2); }
-        .filtro input::placeholder { color: #999; font-weight: normal; }
         .filtro-info { font-size: 12px; color: #6c757d; margin-top: 5px; padding-left: 5px; }
-        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
         th, td { border: 1px solid #ddd; padding: 8px 6px; text-align: left; vertical-align: top; }
-        th { background: #005c8a; color: white; font-weight: 600; position: sticky; top: 0; }
+        th { background: #005c8a; color: white; position: sticky; top: 0; }
         tr:nth-child(even) { background: #f8f9fa; }
         tr:hover { background: #e8f4f8; }
-        .map-link { 
-            background: #0b5ed7; 
-            color: white; 
-            padding: 4px 8px; 
-            border-radius: 16px; 
-            text-decoration: none; 
-            font-size: 11px; 
-            display: inline-block; 
-            white-space: nowrap;
-            cursor: pointer;
-            border: none;
-        }
+        .map-link { background: #0b5ed7; color: white; padding: 4px 8px; border-radius: 16px; text-decoration: none; font-size: 11px; display: inline-block; white-space: nowrap; }
         .map-link:hover { background: #005c8a; }
         .total { font-weight: bold; margin-top: 16px; font-size: 14px; text-align: center; padding: 8px; background: #e9ecef; border-radius: 8px; }
         .footer { text-align: center; padding: 12px; margin-top: 20px; font-size: 12px; color: #6c757d; border-top: 1px solid #dee2e6; background: white; border-radius: 12px; }
-
-        /* MODAL PARA MAPA */
-        .modal-mapa {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 2000;
-            overflow: auto;
-            padding: 20px;
-        }
-        .modal-mapa-content {
-            background: white;
-            margin: 2% auto;
-            padding: 0;
-            border-radius: 12px;
-            max-width: 90%;
-            width: 800px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        .modal-mapa-header {
-            background: #005c8a;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 12px 12px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .modal-mapa-header h3 {
-            margin: 0;
-            font-size: 18px;
-        }
-        .close-mapa {
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            background: none;
-            border: none;
-            color: white;
-            padding: 0 8px;
-        }
-        .close-mapa:hover {
-            color: #ffcccc;
-        }
-        .modal-mapa-body {
-            padding: 20px;
-            min-height: 500px;
-        }
-        .endereco-info {
-            background: #f0f0f0;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            word-break: break-word;
-        }
-        .mapa-container {
-            width: 100%;
-            height: 450px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #ddd;
-        }
-        .mapa-container iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .btn-abrir-google {
-            display: inline-block;
-            background: #0b5ed7;
-            color: white;
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 8px;
-            margin-top: 10px;
-            font-size: 13px;
-            text-align: center;
-        }
-        .btn-abrir-google:hover {
-            background: #005c8a;
-        }
-        .cidade-fixa {
-            display: inline-block;
-            background: #198754;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            margin-left: 8px;
-        }
-
-        @media print {
-            body { background: white; padding: 0; margin: 0; }
-            .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info { display: none !important; }
-            .header { background: #005c8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-            .map-link { text-decoration: none; color: black; background: none; padding: 0; }
-            .footer { position: fixed; bottom: 0; width: 100%; }
-        }
-        
-        @media (max-width: 600px) {
-            .empresa-nome { font-size: 1rem; }
-            .titulo-relatorio { font-size: 0.9rem; }
-            .data-hora { font-size: 0.7rem; }
-            .logo-area img { height: 40px; }
-            .footer { font-size: 10px; }
-            .filtro input { font-size: 12px; padding: 10px; }
-            .filtro label { font-size: 12px; padding: 5px 10px; }
-            .mapa-container { height: 350px; }
-        }
+        @media print { body { background: white; padding: 0; margin: 0; } .btn-group, .card:first-child, .filtro, button, .instrucao, textarea, .filtro-info { display: none !important; } .header { background: #005c8a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; } .map-link { text-decoration: none; color: black; background: none; padding: 0; } .footer { position: fixed; bottom: 0; width: 100%; } }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; overflow: auto; padding: 20px; }
+        .modal-content { background: white; margin: auto; padding: 16px; border-radius: 12px; max-width: 95%; text-align: center; }
+        .modal img { max-width: 100%; height: auto; border-radius: 8px; }
+        .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; color: #333; }
+        @media (max-width: 600px) { .empresa-nome { font-size: 1rem; } .titulo-relatorio { font-size: 0.9rem; } .data-hora { font-size: 0.7rem; } .logo-area img { height: 40px; } .footer { font-size: 10px; } .filtro input { font-size: 12px; padding: 10px; } }
     </style>
 </head>
 <body>
@@ -218,18 +104,7 @@
         <div class="table-wrapper">
             <table id="tabelaRelatorio">
                 <thead>
-                    <tr>
-                        <th>Equipe / Operador</th>
-                        <th>Solicitação</th>
-                        <th>Descrição</th>
-                        <th>Data Abertura</th>
-                        <th>Data Prazo</th>
-                        <th>Logradouro</th>
-                        <th>Nº</th>
-                        <th>Bairro</th>
-                        <th>Cidade</th>
-                        <th>Mapa</th>
-                    </tr>
+                    <tr><th>Equipe</th><th>Solicitação</th><th>Descrição</th><th>Data Abertura</th><th>Data Prazo</th><th>Logradouro</th><th>Nº</th><th>Bairro</th><th>Cidade</th><th>Mapa</th></tr>
                 </thead>
                 <tbody id="tabelaBody"></tbody>
             </table>
@@ -242,32 +117,17 @@
     </div>
 </div>
 
-<!-- MODAL PARA EXIBIR MAPA -->
-<div id="modalMapa" class="modal-mapa">
-    <div class="modal-mapa-content">
-        <div class="modal-mapa-header">
-            <h3>📍 Localização em Canarana-MT</h3>
-            <button class="close-mapa" onclick="fecharModalMapa()">&times;</button>
-        </div>
-        <div class="modal-mapa-body">
-            <div class="endereco-info" id="enderecoModal">
-                Carregando endereço...
-            </div>
-            <div class="mapa-container" id="mapaContainer">
-                <iframe id="mapaIframe" src="about:blank"></iframe>
-            </div>
-            <div style="text-align: center; margin-top: 15px;">
-                <a href="#" id="linkGoogleMaps" target="_blank" class="btn-abrir-google">
-                    🗺️ Abrir no Google Maps
-                </a>
-            </div>
-        </div>
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="fecharModal()">&times;</span>
+        <img id="modalImage" src="" alt="Relatório">
+        <p><small>🔽 Clique com botão direito e escolha "Salvar imagem como..."</small></p>
     </div>
 </div>
 
 <script>
     let dadosRelatorio = [];
-    const CIDADE_PADRAO = "Canarana-MT"; // Cidade fixa para busca
+    let timeoutFiltro = null;
     
     function atualizarDataHora() {
         const agora = new Date();
@@ -276,87 +136,12 @@
     atualizarDataHora();
     setInterval(atualizarDataHora, 1000);
 
-    // ─── NORMALIZAÇÃO: remove acentos para busca mais tolerante ───────────────
-    function normalizar(str) {
-        if (!str) return "";
-        return str
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .trim();
-    }
-
     function limparNomeEquipe(nome) {
-        if (!nome) return "";
-        let n = nome.replace(/^CANARANA\s*-\s*/i, '').trim();
-        return n;
-    }
-
-    // ─── EXTRAÇÃO DE TODAS AS EQUIPES/OPERADORES DO HTML ─────────────────────
-    function extrairEquipes(html) {
-        const equipes = new Set();
-        const re = /qtip="([^"]*CANARANA[^"]*)"/gi;
-        let m;
-        while ((m = re.exec(html)) !== null) {
-            equipes.add(limparNomeEquipe(m[1]));
-        }
-        const re2 = /CANARANA\s*-\s*(OP-[A-Z0-9\-]+)/gi;
-        while ((m = re2.exec(html)) !== null) {
-            equipes.add(limparNomeEquipe(m[1]));
-        }
-        return [...equipes];
-    }
-
-    // ─── FUNÇÃO PARA ABRIR MAPA (BUSCA APENAS EM CANARANA-MT) ─────────────────
-    function abrirMapa(logradouro, numero, bairro) {
-        // Monta o endereço completo para busca em Canarana-MT
-        let enderecoBusca = '';
-        
-        if (logradouro && logradouro.trim()) {
-            enderecoBusca += logradouro.trim();
-        }
-        if (numero && numero.trim()) {
-            enderecoBusca += ', ' + numero.trim();
-        }
-        if (bairro && bairro.trim()) {
-            enderecoBusca += ', ' + bairro.trim();
-        }
-        
-        // Adiciona a cidade fixa: Canarana-MT
-        if (enderecoBusca && enderecoBusca.length > 0) {
-            enderecoBusca += ', Canarana-MT';
-        } else {
-            enderecoBusca = "Canarana-MT";
-        }
-        
-        // Mostra o endereço no modal
-        const enderecoModal = document.getElementById('enderecoModal');
-        enderecoModal.innerHTML = `
-            <strong>📍 Buscando em Canarana-MT:</strong><br>
-            ${enderecoBusca}
-        `;
-        
-        // URL do Google Maps para busca (com cidade fixa)
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoBusca)}`;
-        
-        // URL para embed do Google Maps
-        const embedUrl = `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(enderecoBusca)}`;
-        
-        // Atualiza o iframe
-        const iframe = document.getElementById('mapaIframe');
-        iframe.src = embedUrl;
-        
-        // Atualiza o link para abrir no Google Maps
-        const linkGoogle = document.getElementById('linkGoogleMaps');
-        linkGoogle.href = mapsUrl;
-        
-        // Exibe o modal
-        document.getElementById('modalMapa').style.display = 'block';
-    }
-    
-    function fecharModalMapa() {
-        document.getElementById('modalMapa').style.display = 'none';
-        document.getElementById('mapaIframe').src = 'about:blank';
+        if (!nome) return "Não identificada";
+        let nomeLimpo = nome.replace(/^CANARANA\s*-\s*/i, '');
+        nomeLimpo = nomeLimpo.replace(/^CANARANA-/i, '');
+        nomeLimpo = nomeLimpo.replace(/^OP-/i, 'OP-');
+        return nomeLimpo;
     }
 
     function gerarRelatorio(silencioso) {
@@ -367,116 +152,108 @@
         }
 
         dadosRelatorio = [];
-
-        // ── 1. Extrai lista de equipes disponíveis no HTML ──────────────────
-        const equipesDisponiveis = extrairEquipes(html);
-
-        // ── 2. Processa cada linha <tr> ─────────────────────────────────────
-        const linhaRegex = /<tr[^>]*class="[^"]*I2HUBSB-ab-l[^"]*"[^>]*>([\s\S]*?)<\/tr>/gi;
+        
+        let equipe = "Não identificada";
+        const equipeMatch = html.match(/<span qtip="([^"]*CANARANA[^"]*)"[^>]*>/i);
+        if (equipeMatch) {
+            equipe = limparNomeEquipe(equipeMatch[1]);
+        }
+        
+        if (equipe === "Não identificada") {
+            const equipeMatch2 = html.match(/CANARANA\s*-\s*(OP-[A-Z]+[^<]*)/i);
+            if (equipeMatch2) {
+                equipe = limparNomeEquipe(equipeMatch2[1]);
+            }
+        }
+        
+        const linhaRegex = /<tr class="I2HUBSB-ab-l[^>]*>([\s\S]*?)<\/tr>/gi;
         let match;
-
+        
         while ((match = linhaRegex.exec(html)) !== null) {
             const linhaHtml = match[1];
             if (linhaHtml.includes("<th")) continue;
-
-            // ── 2a. Monta array de células por cellindex ─────────────────
-            const celulas = {};
-
-            const tdRegex = /<td[^>]*\bcellindex="(\d+)"[^>]*>([\s\S]*?)<\/td>/gi;
+            
+            const celulas = [];
+            const tdRegex = /<td[^>]*cellindex="(\d+)"[^>]*>(?:<div[^>]*>)*([\s\S]*?)(?:<\/div>)*<\/td>/gi;
             let tdMatch;
+            
             while ((tdMatch = tdRegex.exec(linhaHtml)) !== null) {
-                const idx = parseInt(tdMatch[1]);
-                let conteudo = tdMatch[2]
-                    .replace(/<[^>]+>/g, ' ')
-                    .replace(/&nbsp;/g, ' ')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>')
-                    .replace(/\s+/g, ' ')
-                    .trim();
-                celulas[idx] = conteudo;
+                const cellIndex = parseInt(tdMatch[1]);
+                let conteudo = tdMatch[2];
+                conteudo = conteudo.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+                celulas[cellIndex] = conteudo;
             }
-
-            // ── 2b. Tenta detectar operador DENTRO da linha ──────────────
-            let equipeNaLinha = "";
-            const qtipMatch = linhaHtml.match(/qtip="([^"]*(?:CANARANA|OP-)[^"]*)"/i);
-            if (qtipMatch) {
-                equipeNaLinha = limparNomeEquipe(qtipMatch[1]);
+            
+            const solicitacao = celulas[3] || "";
+            const descricao = celulas[8] || "";
+            const dataAbertura = celulas[9] || "";
+            const dataPrazo = celulas[11] || "";
+            const logradouro = celulas[18] || "";
+            const numero = celulas[19] || "";
+            const bairro = celulas[20] || "";
+            let cidade = celulas[21] || "Canarana";
+            
+            if (cidade && cidade !== "Canarana") {
+                cidade = cidade.toUpperCase().replace(/-MT$/i, '') + "-MT";
+            } else if (cidade === "Canarana") {
+                cidade = "CANARANA-MT";
+            } else if (cidade && !cidade.includes("-MT")) {
+                cidade = cidade.toUpperCase() + "-MT";
             }
-            if (!equipeNaLinha) {
-                equipeNaLinha = equipesDisponiveis.length > 0 ? equipesDisponiveis[0] : "Não identificada";
-            }
-
-            // ── 2c. Verifica células com OP- ──────────────────────────────
-            for (const [idx, val] of Object.entries(celulas)) {
-                if (/\bOP-[A-Z]/i.test(val) && !equipeNaLinha) {
-                    equipeNaLinha = limparNomeEquipe(val);
-                }
-            }
-
-            // ── 2d. Campos principais ────────────────────────────────────
-            const solicitacao  = celulas[3]  || "";
-            const descricao    = celulas[8]  || "";
-            const dataAbertura = celulas[9]  || "";
-            const dataPrazo    = celulas[11] || "";
-            const logradouro   = celulas[18] || "";
-            const numero       = celulas[19] || "";
-            const bairro       = celulas[20] || "";
-            const cidade       = CIDADE_PADRAO; // Força Canarana-MT
-
+            
             if (solicitacao || logradouro) {
                 dadosRelatorio.push({
-                    equipe:        equipeNaLinha,
-                    solicitacao:   solicitacao,
-                    descricao:     descricao,
-                    dataAbertura:  dataAbertura,
-                    dataPrazo:     dataPrazo,
-                    logradouro:    logradouro,
-                    numero:        numero,
-                    bairro:        bairro,
-                    cidade:        cidade
+                    equipe: equipe,
+                    solicitacao: solicitacao,
+                    descricao: descricao,
+                    dataAbertura: dataAbertura,
+                    dataPrazo: dataPrazo,
+                    logradouro: logradouro,
+                    numero: numero,
+                    bairro: bairro,
+                    cidade: cidade
                 });
             }
         }
-
+        
         if (dadosRelatorio.length === 0) {
-            if (!silencioso) alert("❌ Nenhuma OS encontrada. Verifique o HTML copiado.");
+            if (!silencioso) {
+                alert("❌ Nenhuma OS encontrada. Verifique o HTML copiado.");
+            }
             return;
         }
-
+        
         if (!silencioso) alert(`✅ ${dadosRelatorio.length} OS(es) encontrada(s)!`);
+        
         renderizarTabela();
     }
-
-    // ─── RENDERIZAÇÃO COM FILTRO ───────────────────────────────────────────
+    
     function renderizarTabela() {
-        const filtroInput = document.getElementById("filtroGeral").value;
-        const filtroNorm  = normalizar(filtroInput);
-
-        let dadosFiltrados;
-
-        if (filtroNorm.length >= 3) {
+        const busca = document.getElementById("filtroGeral").value;
+        const buscaLower = busca.toLowerCase().trim();
+        
+        let dadosFiltrados = [];
+        
+        if (buscaLower.length >= 3) {
             dadosFiltrados = dadosRelatorio.filter(item => {
-                const equipeNorm     = normalizar(item.equipe);
-                const logradouroNorm = normalizar(item.logradouro);
-                const bairroNorm     = normalizar(item.bairro);
-                const descricaoNorm  = normalizar(item.descricao);
-
-                return equipeNorm.includes(filtroNorm)
-                    || logradouroNorm.includes(filtroNorm)
-                    || bairroNorm.includes(filtroNorm)
-                    || descricaoNorm.includes(filtroNorm);
+                const operador = item.equipe.toLowerCase();
+                const logradouro = item.logradouro.toLowerCase();
+                return operador.includes(buscaLower) || logradouro.includes(buscaLower);
             });
         } else {
             dadosFiltrados = [...dadosRelatorio];
         }
-
+        
         const tbody = document.getElementById("tabelaBody");
         tbody.innerHTML = "";
-
+        
         for (const item of dadosFiltrados) {
+            // ✅ CORREÇÃO: link do mapa usando APENAS o logradouro
+            const enderecoMapa = item.logradouro.trim();
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
+            
             const row = tbody.insertRow();
-            row.insertCell(0).textContent = item.equipe || "—";
+            row.insertCell(0).textContent = item.equipe;
             row.insertCell(1).textContent = item.solicitacao;
             row.insertCell(2).textContent = item.descricao;
             row.insertCell(3).textContent = item.dataAbertura;
@@ -484,166 +261,221 @@
             row.insertCell(5).textContent = item.logradouro;
             row.insertCell(6).textContent = item.numero;
             row.insertCell(7).textContent = item.bairro;
+            row.insertCell(8).textContent = item.cidade;
             
-            // Célula da cidade com indicação visual
-            const cidadeCell = row.insertCell(8);
-            cidadeCell.textContent = item.cidade;
-            cidadeCell.style.fontWeight = 'bold';
-            cidadeCell.style.color = '#198754';
-            
-            // Botão de Mapa
             const cellMap = row.insertCell(9);
-            const mapButton = document.createElement("button");
-            mapButton.textContent = "🗺️ Ver Mapa";
-            mapButton.className = "map-link";
-            mapButton.onclick = (function(logradouro, numero, bairro) {
-                return function() {
-                    abrirMapa(logradouro, numero, bairro);
-                };
-            })(item.logradouro, item.numero, item.bairro);
-            
-            cellMap.appendChild(mapButton);
+            const link = document.createElement("a");
+            link.href = mapsUrl;
+            link.target = "_blank";
+            link.textContent = "🗺️ Abrir Mapa";
+            link.className = "map-link";
+            cellMap.appendChild(link);
         }
-
+        
         const totalFiltrados = dadosFiltrados.length;
-        const totalGeral     = dadosRelatorio.length;
-
-        let mensagem = `📊 Total de OS: ${totalFiltrados} em ${CIDADE_PADRAO}`;
-        if (filtroNorm.length >= 3 && totalFiltrados !== totalGeral) {
-            mensagem += ` (filtrado de ${totalGeral} total)`;
+        const totalGeral = dadosRelatorio.length;
+        
+        let textoTotal = `📊 Total de OS: ${totalFiltrados}`;
+        if (totalFiltrados !== totalGeral && buscaLower.length >= 3) {
+            textoTotal += ` (filtrado de ${totalGeral} total)`;
         }
-        document.getElementById("totalRegistros").innerHTML = mensagem;
-
+        document.getElementById("totalRegistros").innerHTML = textoTotal;
+        
         const infoDiv = document.getElementById("filtroInfo");
-        if (filtroNorm.length >= 3) {
+        if (buscaLower.length >= 3) {
             if (totalFiltrados === 0) {
-                infoDiv.innerHTML = `🔍 Nenhum resultado para "<strong>${filtroInput}</strong>" — tente outro termo`;
-            } else if (totalFiltrados !== totalGeral) {
-                infoDiv.innerHTML = `🎯 Filtro ativo: "<strong>${filtroInput}</strong>" → ${totalFiltrados} OS(s) encontrada(s) em ${CIDADE_PADRAO}`;
+                infoDiv.innerHTML = `🔍 Nenhum resultado encontrado para "${busca}" - Tente outro termo`;
             } else {
-                infoDiv.innerHTML = `🔍 "<strong>${filtroInput}</strong>" encontrado em todas as ${totalGeral} OS(s) em ${CIDADE_PADRAO}`;
+                infoDiv.innerHTML = `🎯 Filtro ativo: "${busca}" → ${totalFiltrados} OS(s) encontradas`;
             }
-        } else if (filtroNorm.length > 0) {
-            infoDiv.innerHTML = `⌨️ Digite mais ${3 - filtroNorm.length} caractere(s) para filtrar — ${totalGeral} OS(s) em ${CIDADE_PADRAO}`;
+        } else if (buscaLower.length > 0 && buscaLower.length < 3) {
+            infoDiv.innerHTML = `⌨️ Digite mais ${3 - buscaLower.length} caractere(s) para filtrar - ${totalGeral} OS(s) no total`;
         } else {
-            infoDiv.innerHTML = `💡 Pesquise por Operador, Logradouro, Bairro ou Descrição (mínimo 3 letras) — ${totalGeral} OS(s) em ${CIDADE_PADRAO}`;
+            infoDiv.innerHTML = `💡 Digite o nome do OPERADOR ou LOGRADOURO (mínimo 3 letras) - ${totalGeral} OS(s) no total`;
         }
     }
-
-    // ─── DEBOUNCE DO FILTRO ───────────────────────────────────────────────
-    let timeoutFiltro = null;
+    
     function aoDigitar() {
         if (timeoutFiltro) clearTimeout(timeoutFiltro);
         timeoutFiltro = setTimeout(() => {
-            const htmlColado = document.getElementById("htmlInput").value.trim();
-            if (dadosRelatorio.length === 0 && htmlColado) {
-                gerarRelatorio(true);
-            } else {
-                renderizarTabela();
-            }
-        }, 250);
+            renderizarTabela();
+        }, 300);
     }
-
-    // ─── PDF ──────────────────────────────────────────────────────────────
+    
     function gerarPDF() {
-        if (dadosRelatorio.length === 0) { alert("⚠️ Gere o relatório primeiro!"); return; }
+        if (dadosRelatorio.length === 0) {
+            alert("⚠️ Gere o relatório primeiro!");
+            return;
+        }
+        
         const filtroDiv = document.querySelector('.filtro');
         const filtroInfoDiv = document.querySelector('.filtro-info');
         const botoesCard = document.querySelector('.card:first-of-type');
+        
         if (filtroDiv) filtroDiv.style.display = 'none';
         if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
         if (botoesCard) botoesCard.style.display = 'none';
+        
         alert("📄 Clique em 'Salvar como PDF' na janela que vai abrir");
         window.print();
+        
         setTimeout(() => {
             if (filtroDiv) filtroDiv.style.display = '';
             if (filtroInfoDiv) filtroInfoDiv.style.display = '';
             if (botoesCard) botoesCard.style.display = '';
         }, 500);
     }
-
-    // ─── IMAGEM ──────────────────────────────────────────────────────────
+    
     async function gerarImagem() {
-        if (dadosRelatorio.length === 0) { alert("⚠️ Gere o relatório primeiro!"); return; }
+        if (dadosRelatorio.length === 0) {
+            alert("⚠️ Gere o relatório primeiro!");
+            return;
+        }
+        
         const btnImg = document.getElementById('btnImg');
         const textoOriginal = btnImg.textContent;
         btnImg.textContent = "⏳ Gerando...";
         btnImg.disabled = true;
+        
         const filtroDiv = document.querySelector('.filtro');
         const filtroInfoDiv = document.querySelector('.filtro-info');
         if (filtroDiv) filtroDiv.style.display = 'none';
         if (filtroInfoDiv) filtroInfoDiv.style.display = 'none';
-
+        
         const tempContainer = document.createElement('div');
-        tempContainer.style.cssText = 'background:white;padding:20px;border-radius:12px;width:fit-content;min-width:100%;position:absolute;top:-9999px;left:-9999px;';
+        tempContainer.style.backgroundColor = 'white';
+        tempContainer.style.padding = '20px';
+        tempContainer.style.borderRadius = '12px';
+        tempContainer.style.width = 'fit-content';
+        tempContainer.style.minWidth = '100%';
         
         const headerClone = document.createElement('div');
-        headerClone.style.cssText = 'background:linear-gradient(135deg,#005c8a 0%,#003d5e 100%);border-radius:12px;padding:16px 20px;margin-bottom:20px;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:15px;';
+        headerClone.style.background = 'linear-gradient(135deg, #005c8a 0%, #003d5e 100%)';
+        headerClone.style.borderRadius = '12px';
+        headerClone.style.padding = '16px 20px';
+        headerClone.style.marginBottom = '20px';
+        headerClone.style.color = 'white';
+        headerClone.style.display = 'flex';
+        headerClone.style.alignItems = 'center';
+        headerClone.style.justifyContent = 'space-between';
+        headerClone.style.flexWrap = 'wrap';
+        headerClone.style.gap = '15px';
+        
         const logoArea = document.createElement('div');
-        logoArea.style.cssText = 'display:flex;align-items:center;gap:15px;';
+        logoArea.style.display = 'flex';
+        logoArea.style.alignItems = 'center';
+        logoArea.style.gap = '15px';
+        
         const logoImg = document.createElement('div');
-        logoImg.style.cssText = 'background:white;border-radius:12px;padding:5px 12px;font-weight:bold;font-size:20px;color:#005c8a;';
+        logoImg.style.background = 'white';
+        logoImg.style.borderRadius = '12px';
+        logoImg.style.padding = '5px 12px';
+        logoImg.style.fontWeight = 'bold';
+        logoImg.style.fontSize = '20px';
+        logoImg.style.color = '#005c8a';
         logoImg.innerHTML = '💧';
-        const empresaSpan = document.createElement('span');
-        empresaSpan.style.cssText = 'font-size:1.3rem;font-weight:bold;';
-        empresaSpan.textContent = 'Águas Canarana';
         logoArea.appendChild(logoImg);
+        
+        const empresaSpan = document.createElement('span');
+        empresaSpan.style.fontSize = '1.3rem';
+        empresaSpan.style.fontWeight = 'bold';
+        empresaSpan.textContent = 'Águas Canarana';
         logoArea.appendChild(empresaSpan);
-        const tituloDiv = document.createElement('div');
-        tituloDiv.style.cssText = 'background:rgba(255,255,255,0.2);padding:8px 18px;border-radius:40px;font-weight:bold;font-size:1.1rem;';
-        tituloDiv.textContent = '📋 RELATÓRIO DE OS';
-        const dataDiv = document.createElement('div');
-        dataDiv.style.cssText = 'font-size:0.85rem;background:rgba(0,0,0,0.3);padding:6px 12px;border-radius:20px;';
-        dataDiv.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
         headerClone.appendChild(logoArea);
+        
+        const tituloDiv = document.createElement('div');
+        tituloDiv.style.background = 'rgba(255,255,255,0.2)';
+        tituloDiv.style.padding = '8px 18px';
+        tituloDiv.style.borderRadius = '40px';
+        tituloDiv.style.fontWeight = 'bold';
+        tituloDiv.style.fontSize = '1.1rem';
+        tituloDiv.textContent = '📋 RELATÓRIO DE OS';
         headerClone.appendChild(tituloDiv);
+        
+        const dataDiv = document.createElement('div');
+        dataDiv.style.fontSize = '0.85rem';
+        dataDiv.style.background = 'rgba(0,0,0,0.3)';
+        dataDiv.style.padding = '6px 12px';
+        dataDiv.style.borderRadius = '20px';
+        dataDiv.innerHTML = document.getElementById('dataHoraAtual').innerHTML;
         headerClone.appendChild(dataDiv);
         tempContainer.appendChild(headerClone);
-
+        
         const tabelaOriginal = document.getElementById('tabelaRelatorio');
         const tabelaClone = tabelaOriginal.cloneNode(true);
-        tabelaClone.style.cssText = 'width:100%;border-collapse:collapse;font-size:12px;';
+        tabelaClone.style.width = '100%';
+        tabelaClone.style.borderCollapse = 'collapse';
+        tabelaClone.style.fontSize = '12px';
+        
         const thead = tabelaClone.querySelector('thead');
         if (thead) {
             thead.style.position = 'relative';
-            thead.querySelectorAll('th').forEach(th => {
-                th.style.cssText = 'position:static;top:auto;background:#005c8a;color:white;border:1px solid #ddd;padding:8px 6px;';
+            const ths = thead.querySelectorAll('th');
+            ths.forEach(th => {
+                th.style.position = 'static';
+                th.style.top = 'auto';
+                th.style.background = '#005c8a';
+                th.style.color = 'white';
+                th.style.border = '1px solid #ddd';
+                th.style.padding = '8px 6px';
             });
         }
-        tabelaClone.querySelectorAll('td').forEach(td => {
-            td.style.cssText = 'border:1px solid #ddd;padding:8px 6px;';
+        
+        const tds = tabelaClone.querySelectorAll('td');
+        tds.forEach(td => {
+            td.style.border = '1px solid #ddd';
+            td.style.padding = '8px 6px';
         });
         tempContainer.appendChild(tabelaClone);
-
+        
         const totalOriginal = document.getElementById('totalRegistros');
         if (totalOriginal && totalOriginal.innerHTML) {
             const totalClone = document.createElement('div');
-            totalClone.style.cssText = 'margin-top:16px;padding:8px;background-color:#e9ecef;border-radius:8px;text-align:center;font-weight:bold;';
+            totalClone.style.marginTop = '16px';
+            totalClone.style.padding = '8px';
+            totalClone.style.backgroundColor = '#e9ecef';
+            totalClone.style.borderRadius = '8px';
+            totalClone.style.textAlign = 'center';
+            totalClone.style.fontWeight = 'bold';
             totalClone.innerHTML = totalOriginal.innerHTML;
             tempContainer.appendChild(totalClone);
         }
-
+        
         const footerClone = document.createElement('div');
-        footerClone.style.cssText = 'text-align:center;padding:12px;margin-top:20px;font-size:11px;color:#6c757d;border-top:1px solid #dee2e6;';
+        footerClone.style.textAlign = 'center';
+        footerClone.style.padding = '12px';
+        footerClone.style.marginTop = '20px';
+        footerClone.style.fontSize = '11px';
+        footerClone.style.color = '#6c757d';
+        footerClone.style.borderTop = '1px solid #dee2e6';
         footerClone.innerHTML = '🚀 Desenvolvido por <strong>Marcos Duarte</strong> | 📞 (62) 98469-6547';
         tempContainer.appendChild(footerClone);
-
+        
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.top = '-9999px';
+        tempContainer.style.left = '-9999px';
         document.body.appendChild(tempContainer);
+        
         await new Promise(r => setTimeout(r, 100));
-
+        
         try {
             const canvas = await html2canvas(tempContainer, {
-                scale: 2.5, backgroundColor: '#ffffff', logging: false,
-                useCORS: true, windowWidth: tempContainer.scrollWidth, windowHeight: tempContainer.scrollHeight
+                scale: 2.5,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: true,
+                windowWidth: tempContainer.scrollWidth,
+                windowHeight: tempContainer.scrollHeight
             });
+            
             const imageData = canvas.toDataURL('image/png');
-            const modalImg = document.createElement('div');
-            modalImg.id = 'tempModal';
-            modalImg.className = 'modal';
-            modalImg.style.display = 'block';
-            modalImg.innerHTML = `<div class="modal-content"><span class="close" onclick="this.parentElement.parentElement.style.display='none'">&times;</span><img src="${imageData}" style="width:100%"><p><small>🔽 Clique com botão direito e escolha "Salvar imagem como..."</small></p></div>`;
-            document.body.appendChild(modalImg);
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modalImg.src = imageData;
+            modal.style.display = 'block';
+            
         } catch (error) {
+            console.error('Erro:', error);
             alert('Erro ao gerar imagem: ' + error.message);
         } finally {
             document.body.removeChild(tempContainer);
@@ -653,35 +485,43 @@
             btnImg.disabled = false;
         }
     }
-
-    // ─── EXCEL (CSV) ─────────────────────────────────────────────────────
+    
     function exportarExcel() {
-        if (dadosRelatorio.length === 0) { alert("⚠️ Gere o relatório primeiro!"); return; }
-        const filtroNorm = normalizar(document.getElementById("filtroGeral").value);
-        let dadosFiltrados = filtroNorm.length >= 3
-            ? dadosRelatorio.filter(item =>
-                normalizar(item.equipe).includes(filtroNorm) ||
-                normalizar(item.logradouro).includes(filtroNorm) ||
-                normalizar(item.bairro).includes(filtroNorm) ||
-                normalizar(item.descricao).includes(filtroNorm))
-            : [...dadosRelatorio];
-
-        let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
-        for (const item of dadosFiltrados) {
-            const endereco = `${item.logradouro} ${item.numero}, ${item.bairro}, ${CIDADE_PADRAO}`;
-            const mapsUrl  = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`;
-            csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g,'""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${CIDADE_PADRAO}";"${mapsUrl}"\n`;
+        if (dadosRelatorio.length === 0) {
+            alert("⚠️ Gere o relatório primeiro!");
+            return;
         }
+        
+        const busca = document.getElementById("filtroGeral").value.toLowerCase().trim();
+        
+        let dadosFiltrados = [];
+        if (busca.length >= 3) {
+            dadosFiltrados = dadosRelatorio.filter(item => {
+                return item.equipe.toLowerCase().includes(busca) || item.logradouro.toLowerCase().includes(busca);
+            });
+        } else {
+            dadosFiltrados = [...dadosRelatorio];
+        }
+        
+        let csv = "Equipe;Solicitação;Descrição;Data Abertura;Data Prazo;Logradouro;Nr. Imóvel;Bairro;Cidade;Link Mapa\n";
+        
+        for (const item of dadosFiltrados) {
+            const enderecoMapa = item.logradouro.trim();
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
+            csv += `"${item.equipe}";"${item.solicitacao}";"${item.descricao.replace(/"/g, '""')}";"${item.dataAbertura}";"${item.dataPrazo}";"${item.logradouro}";"${item.numero}";"${item.bairro}";"${item.cidade}";"${mapsUrl}"\n`;
+        }
+        
         const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
+        link.href = url;
         link.setAttribute("download", `aguas_canarana_os_${new Date().toISOString().slice(0,10)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
-
-    // ─── LIMPAR ──────────────────────────────────────────────────────────
+    
     function limparOS() {
         document.getElementById("tabelaBody").innerHTML = "";
         dadosRelatorio = [];
@@ -695,23 +535,19 @@
         document.getElementById("htmlInput").value = "";
         alert("✅ Código limpo!");
     }
-
-    // ─── EVENTOS ─────────────────────────────────────────────────────────
-    document.getElementById("btnGerar").addEventListener("click",       () => gerarRelatorio(false));
-    document.getElementById("btnExcel").addEventListener("click",       exportarExcel);
-    document.getElementById("btnPDF").addEventListener("click",         gerarPDF);
-    document.getElementById("btnImg").addEventListener("click",         gerarImagem);
-    document.getElementById("btnLimparOS").addEventListener("click",    limparOS);
-    document.getElementById("btnLimparCodigo").addEventListener("click",limparCodigo);
-    document.getElementById("filtroGeral").addEventListener("input",    aoDigitar);
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModalMapa(); });
     
-    window.onclick = function(event) {
-        const modal = document.getElementById('modalMapa');
-        if (event.target === modal) {
-            fecharModalMapa();
-        }
+    function fecharModal() {
+        document.getElementById("imageModal").style.display = "none";
     }
+    
+    document.getElementById("btnGerar").addEventListener("click", () => gerarRelatorio(false));
+    document.getElementById("btnExcel").addEventListener("click", exportarExcel);
+    document.getElementById("btnPDF").addEventListener("click", gerarPDF);
+    document.getElementById("btnImg").addEventListener("click", gerarImagem);
+    document.getElementById("btnLimparOS").addEventListener("click", limparOS);
+    document.getElementById("btnLimparCodigo").addEventListener("click", limparCodigo);
+    document.getElementById("filtroGeral").addEventListener("input", aoDigitar);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharModal(); });
 </script>
 </body>
 </html>
