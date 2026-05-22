@@ -133,7 +133,6 @@
         .btn-limpar-codigo { background: #6c757d; }
         .btn-gerar { background: #005c8a; }
         
-        /* FILTRO ÚNICO */
         .filtro {
             margin-bottom: 16px;
             display: flex;
@@ -324,7 +323,6 @@
 </head>
 <body>
 <div class="container">
-    <!-- HEADER - FAIXA AZUL EM CIMA -->
     <div class="header" id="headerPrincipal">
         <div class="logo-area">
             <img src="https://static.wixstatic.com/media/238586_cac840936a6c4fa999199a4b27225e26~mv2.png/v1/fill/w_144,h_72,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/aguas%20canarana%20-%20preferencial.png" 
@@ -401,7 +399,6 @@
     let dadosRelatorio = [];
     let timeoutFiltro = null;
     
-    // Normaliza texto: remove acentos, minúsculas, trim
     function normalizar(texto) {
         if (texto === null || texto === undefined) return "";
         return texto
@@ -515,11 +512,10 @@
     function renderizarTabela() {
         const filtro = normalizar(document.getElementById("filtroGeral").value);
         
-        // Só filtra se tiver 3 letras ou mais
+        // ✅ CORREÇÃO: Só filtra se tiver 3 letras ou mais
         let filtrados = dadosRelatorio;
         if (filtro.length >= 3) {
             filtrados = dadosRelatorio.filter(item => {
-                // Busca por OPERADOR (Equipe) OU por LOGRADOURO
                 const buscaOperador = normalizar(item.equipe).includes(filtro);
                 const buscaLogradouro = normalizar(item.logradouro).includes(filtro);
                 return buscaOperador || buscaLogradouro;
@@ -635,7 +631,6 @@
         tempContainer.style.width = 'fit-content';
         tempContainer.style.minWidth = '100%';
         
-        // HEADER CONSTRUÍDO MANUALMENTE
         const headerClone = document.createElement('div');
         headerClone.style.background = 'linear-gradient(135deg, #005c8a 0%, #003d5e 100%)';
         headerClone.style.borderRadius = '12px';
@@ -688,7 +683,6 @@
         headerClone.appendChild(dataDiv);
         tempContainer.appendChild(headerClone);
         
-        // TABELA
         const tabelaOriginal = document.getElementById('tabelaRelatorio');
         const tabelaClone = tabelaOriginal.cloneNode(true);
         tabelaClone.style.width = '100%';
@@ -716,7 +710,6 @@
         });
         tempContainer.appendChild(tabelaClone);
         
-        // TOTAL
         const totalOriginal = document.getElementById('totalRegistros');
         if (totalOriginal && totalOriginal.innerHTML) {
             const totalClone = document.createElement('div');
@@ -730,7 +723,6 @@
             tempContainer.appendChild(totalClone);
         }
         
-        // RODAPÉ
         const footerClone = document.createElement('div');
         footerClone.style.textAlign = 'center';
         footerClone.style.padding = '12px';
@@ -842,7 +834,6 @@
         aplicarFiltro();
     }
     
-    // Eventos
     document.getElementById("btnGerar").addEventListener("click", () => gerarRelatorio(false));
     document.getElementById("btnExcel").addEventListener("click", exportarExcel);
     document.getElementById("btnPDF").addEventListener("click", gerarPDF);
